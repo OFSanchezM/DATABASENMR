@@ -3,8 +3,6 @@ from collections import defaultdict
 from datetime import datetime
 from PIL import Image
 
-st.set_page_config(page_title="NOMASRIMEL", layout="wide")
-
 # =========================
 # 🎨 ESTILOS NOMASRIMEL
 # =========================
