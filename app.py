@@ -1,42 +1,132 @@
 import streamlit as st
 from collections import defaultdict
+from datetime import datetime
+from PIL import Image
 
 st.set_page_config(page_title="NOMASRIMEL", layout="wide")
 
 # =========================
-# 🎨 ESTILO
+# 🎨 ESTILOS NOMASRIMEL
 # =========================
 st.markdown("""
 <style>
+
+/* Fuente */
+html, body, [class*="css"] {
+    font-family: Avenir, Helvetica, Arial, sans-serif;
+}
+
+/* Fondo general */
+[data-testid="stAppViewContainer"] {
+    background-color: #EEEBE2;
+}
+
+/* Contenedor central */
+section.main > div {
+    background-color: #E5EBE6;
+    padding: 20px;
+    border-radius: 20px;
+}
+
+/* Títulos */
+h1 {
+    color: #000000;
+    font-size: 28px;
+    font-weight: 600;
+}
+
+h3 {
+    color: #000000;
+}
+
+/* Inputs */
+input {
+    background-color: #FFFFFF !important;
+    border-radius: 14px !important;
+    border: 1px solid #ccc !important;
+    color: #000 !important;
+    padding: 12px !important;
+}
+
+/* Cards */
 .card {
-    background-color: #111;
-    padding: 18px;
-    border-radius: 15px;
-    margin-bottom: 10px;
-    border: 1px solid #333;
+    background: #FFFFFF;
+    padding: 20px;
+    border-radius: 20px;
+    margin-bottom: 12px;
+    border: 1px solid #ddd;
+    box-shadow: 0px 4px 12px rgba(0,0,0,0.05);
 }
+
+/* Servicio */
 .title {
-    font-size: 20px;
-    font-weight: bold;
+    font-size: 17px;
+    font-weight: 600;
+    color: #000;
 }
+
+/* Info secundaria */
 .small {
-    color: #aaa;
+    color: #555;
     font-size: 13px;
 }
+
+/* Precio (azul marca) */
 .price {
     font-size: 18px;
     font-weight: bold;
+    color: #0000FF;
 }
+
+/* Fecha */
+.fecha {
+    color: #000;
+    font-weight: 600;
+}
+
+/* Highlight última visita (verde marca) */
+.highlight {
+    background-color: #A4EAC0;
+    color: #000;
+    padding: 4px 8px;
+    border-radius: 8px;
+    font-size: 12px;
+}
+
+/* Botones */
+button {
+    background-color: #FFFFFF !important;
+    border-radius: 12px !important;
+    border: 1px solid #ccc !important;
+    color: #000 !important;
+}
+
+button:hover {
+    background-color: #A4EAC0 !important;
+    border: 1px solid #A4EAC0 !important;
+}
+
 </style>
 """, unsafe_allow_html=True)
+# =========================
+# 💎 HEADER CON LOGO
+# =========================
+col1, col2 = st.columns([1, 4])
 
-st.title("💎 NOMASRIMEL")
+try:
+    logo = Image.open("logo.png")
+    with col1:
+        st.image(logo, width=70)
+except:
+    pass
+
+with col2:
+    st.markdown("<h1>NOMASRIMEL</h1>", unsafe_allow_html=True)
 
 # =========================
-# 📂 LEER CSV
+# 📂 LEER CSV (ANTI-ERRORES)
 # =========================
 archivo = "facturas_salon.csv"
-
 datos = []
 
 with open(archivo, encoding="utf-8") as f:
@@ -58,7 +148,7 @@ with open(archivo, encoding="utf-8") as f:
             continue
 
 # =========================
-# 🔍 BUSCADOR PRINCIPAL
+# 🔍 BUSCADOR LIMPIO
 # =========================
 st.subheader("Buscar")
 
@@ -71,10 +161,10 @@ with col2:
     buscar_prof = st.text_input("Profesional")
 
 with col3:
-    buscar_fecha = st.text_input("Fecha (ej: 06/03/2026)")
+    buscar_fecha = st.text_input("Fecha")
 
 # =========================
-# FILTRADO GLOBAL
+# FILTRADO
 # =========================
 filtrados = datos
 
@@ -88,14 +178,14 @@ if buscar_fecha:
     filtrados = [d for d in filtrados if buscar_fecha in d["Fecha"]]
 
 # =========================
-# SELECCIÓN DE CLIENTA
+# SELECCIÓN CLIENTA
 # =========================
 clientes = sorted(list(set(d["Cliente"] for d in filtrados)))
 
+cliente = None
+
 if clientes:
     cliente = st.selectbox("Seleccionar clienta", clientes)
-else:
-    cliente = None
 
 # =========================
 # PERFIL CLIENTA
@@ -107,13 +197,18 @@ if cliente:
 
     historial = [d for d in datos if d["Cliente"] == cliente]
 
-    # =========================
-    # AGRUPAR POR FECHA 🔥
-    # =========================
+    # Agrupar por fecha
     agrupado = defaultdict(list)
 
     for h in historial:
         agrupado[h["Fecha"]].append(h)
+
+    # Ordenar fechas correctamente
+    fechas_ordenadas = sorted(
+        agrupado.keys(),
+        key=lambda x: datetime.strptime(x, "%d/%m/%Y"),
+        reverse=True
+    )
 
     total = sum(h["Precio"] for h in historial)
 
@@ -121,18 +216,15 @@ if cliente:
 
     st.subheader("Historial")
 
-    # Ordenar fechas (más nuevas primero)
-    from datetime import datetime
+    # Mostrar historial
+    for i, fecha in enumerate(fechas_ordenadas):
 
-fechas_ordenadas = sorted(
-    agrupado.keys(),
-    key=lambda x: datetime.strptime(x, "%d/%m/%Y"),
-    reverse=True
-)
+        if i == 0:
+            etiqueta = '<span class="highlight">Última visita</span>'
+        else:
+            etiqueta = ''
 
-for fecha in fechas_ordenadas:
-
-        st.markdown(f"### 📅 {fecha}")
+        st.markdown(f"### 📅 {fecha} {etiqueta}", unsafe_allow_html=True)
 
         for item in agrupado[fecha]:
             st.markdown(f"""
