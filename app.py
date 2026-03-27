@@ -41,12 +41,12 @@ h3 {
 
 /* Inputs */
 input {
-    background-color: #FFFFFF !important;
+  background-color: #FFFFFF !important;
     border-radius: 18px !important;
     border: 1px solid #ddd !important;
     padding: 14px !important;
     font-size: 16px !important;
-    color: #000;
+    color: #000000 !important;   /* 🔥 ESTO ES LO IMPORTANTE */
 }
 
 /* Select (ESTO ES CLAVE 🔥) */
