@@ -1,4 +1,5 @@
 import streamlit as st
+from collections import defaultdict
 
 st.set_page_config(page_title="NOMASRIMEL", layout="wide")
 
@@ -9,17 +10,22 @@ st.markdown("""
 <style>
 .card {
     background-color: #111;
-    padding: 20px;
+    padding: 18px;
     border-radius: 15px;
-    margin-bottom: 15px;
+    margin-bottom: 10px;
     border: 1px solid #333;
 }
-.big {
-    font-size: 24px;
+.title {
+    font-size: 20px;
     font-weight: bold;
 }
 .small {
     color: #aaa;
+    font-size: 13px;
+}
+.price {
+    font-size: 18px;
+    font-weight: bold;
 }
 </style>
 """, unsafe_allow_html=True)
@@ -52,68 +58,79 @@ with open(archivo, encoding="utf-8") as f:
             continue
 
 # =========================
-# 🔍 BUSCADOR
+# 🔍 BUSCADOR PRINCIPAL
 # =========================
-st.subheader("Buscar clienta")
+st.subheader("Buscar")
 
-busqueda = st.text_input("", placeholder="Escribí nombre...")
+col1, col2, col3 = st.columns(3)
 
-# Obtener lista única
-clientes = sorted(list(set(d["Cliente"] for d in datos)))
+with col1:
+    buscar_nombre = st.text_input("Nombre")
 
-if busqueda:
-    clientes = [c for c in clientes if busqueda.lower() in c.lower()]
+with col2:
+    buscar_prof = st.text_input("Profesional")
 
-# =========================
-# 👩 LISTA DE CLIENTAS
-# =========================
-st.subheader("Clientas")
-
-cols = st.columns(3)
-
-for i, cliente in enumerate(clientes):
-    with cols[i % 3]:
-        if st.button(cliente):
-            st.session_state["cliente_seleccionada"] = cliente
+with col3:
+    buscar_fecha = st.text_input("Fecha (ej: 06/03/2026)")
 
 # =========================
-# 👩 PERFIL CLIENTA
+# FILTRADO GLOBAL
 # =========================
-if "cliente_seleccionada" in st.session_state:
+filtrados = datos
 
-    cliente = st.session_state["cliente_seleccionada"]
+if buscar_nombre:
+    filtrados = [d for d in filtrados if buscar_nombre.lower() in d["Cliente"].lower()]
+
+if buscar_prof:
+    filtrados = [d for d in filtrados if buscar_prof.lower() in d["Profesional"].lower()]
+
+if buscar_fecha:
+    filtrados = [d for d in filtrados if buscar_fecha in d["Fecha"]]
+
+# =========================
+# SELECCIÓN DE CLIENTA
+# =========================
+clientes = sorted(list(set(d["Cliente"] for d in filtrados)))
+
+if clientes:
+    cliente = st.selectbox("Seleccionar clienta", clientes)
+else:
+    cliente = None
+
+# =========================
+# PERFIL CLIENTA
+# =========================
+if cliente:
 
     st.markdown("---")
     st.header(f"👩 {cliente}")
 
     historial = [d for d in datos if d["Cliente"] == cliente]
 
-    total = sum(d["Precio"] for d in historial)
-    visitas = len(historial)
+    # =========================
+    # AGRUPAR POR FECHA 🔥
+    # =========================
+    agrupado = defaultdict(list)
 
-    col1, col2 = st.columns(2)
+    for h in historial:
+        agrupado[h["Fecha"]].append(h)
 
-    col1.markdown(f"""
-    <div class="card">
-        <div class="big">${total:,.0f}</div>
-        <div class="small">Total gastado</div>
-    </div>
-    """, unsafe_allow_html=True)
+    total = sum(h["Precio"] for h in historial)
 
-    col2.markdown(f"""
-    <div class="card">
-        <div class="big">{visitas}</div>
-        <div class="small">Visitas</div>
-    </div>
-    """, unsafe_allow_html=True)
+    st.metric("Total gastado", f"${total:,.0f}")
 
     st.subheader("Historial")
 
-    for h in historial[::-1]:
-        st.markdown(f"""
-        <div class="card">
-            <div class="big">{h["Servicio"]}</div>
-            <div class="small">{h["Fecha"]} • {h["Profesional"]}</div>
-            <div class="big">${h["Precio"]:,.0f}</div>
-        </div>
-        """, unsafe_allow_html=True)
+    # Ordenar fechas (más nuevas primero)
+    for fecha in sorted(agrupado.keys(), reverse=True):
+
+        st.markdown(f"### 📅 {fecha}")
+
+        for item in agrupado[fecha]:
+            st.markdown(f"""
+            <div class="card">
+                <div class="title">{item["Servicio"]}</div>
+                <div class="small">{item["Profesional"]}</div>
+                <div class="price">${item["Precio"]:,.0f}</div>
+            </div>
+            """, unsafe_allow_html=True)
