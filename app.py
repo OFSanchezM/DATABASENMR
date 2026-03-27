@@ -46,6 +46,7 @@ input {
     border: 1px solid #ddd !important;
     padding: 14px !important;
     font-size: 16px !important;
+    color: #000
 }
 
 /* Select (ESTO ES CLAVE 🔥) */
@@ -55,6 +56,7 @@ div[data-baseweb="select"] > div {
     background-color: #FFFFFF !important;
     font-size: 16px !important;
     padding: 6px !important;
+    color: #000
 }
 
 /* Cards */
