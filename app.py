@@ -16,36 +16,47 @@ html, body, [class*="css"] {
     font-family: Avenir, Helvetica, Arial, sans-serif;
 }
 
-/* Fondo general */
+/* Fondo suave */
 [data-testid="stAppViewContainer"] {
-    background-color: #0000ff;
+    background-color: #EEEBE2;
 }
 
-/* Contenedor central */
+/* Contenedor */
 section.main > div {
     background-color: #E5EBE6;
-    padding: 20px;
+    padding: 25px;
     border-radius: 20px;
 }
 
-/* Títulos */
+/* Títulos más grandes */
 h1 {
-    color: #000000;
-    font-size: 28px;
+    font-size: 34px;
     font-weight: 600;
+    color: #000;
+    text-align: center;
 }
 
 h3 {
-    color: #000000;
+    font-size: 20px;
+    color: #000;
 }
 
 /* Inputs */
 input {
     background-color: #FFFFFF !important;
-    border-radius: 14px !important;
-    border: 1px solid #ccc !important;
-    color: #000 !important;
-    padding: 12px !important;
+    border-radius: 18px !important;
+    border: 1px solid #ddd !important;
+    padding: 14px !important;
+    font-size: 16px !important;
+}
+
+/* Select (ESTO ES CLAVE 🔥) */
+div[data-baseweb="select"] > div {
+    border-radius: 18px !important;
+    border: 1px solid #ddd !important;
+    background-color: #FFFFFF !important;
+    font-size: 16px !important;
+    padding: 6px !important;
 }
 
 /* Cards */
@@ -54,56 +65,35 @@ input {
     padding: 20px;
     border-radius: 20px;
     margin-bottom: 12px;
-    border: 1px solid #ddd;
-    box-shadow: 0px 4px 12px rgba(0,0,0,0.05);
+    border: 1px solid #eee;
+    box-shadow: 0px 4px 12px rgba(0,0,0,0.04);
 }
 
 /* Servicio */
 .title {
-    font-size: 17px;
-    font-weight: 600;
-    color: #000;
-}
-
-/* Info secundaria */
-.small {
-    color: #555;
-    font-size: 13px;
-}
-
-/* Precio (azul marca) */
-.price {
     font-size: 18px;
+    font-weight: 600;
+}
+
+/* Texto secundario */
+.small {
+    color: #666;
+    font-size: 14px;
+}
+
+/* Precio */
+.price {
+    font-size: 20px;
     font-weight: bold;
     color: #0000FF;
 }
 
-/* Fecha */
-.fecha {
-    color: #000;
-    font-weight: 600;
-}
-
-/* Highlight última visita (verde marca) */
+/* Highlight */
 .highlight {
     background-color: #A4EAC0;
-    color: #000;
-    padding: 4px 8px;
-    border-radius: 8px;
-    font-size: 12px;
-}
-
-/* Botones */
-button {
-    background-color: #FFFFFF !important;
-    border-radius: 12px !important;
-    border: 1px solid #ccc !important;
-    color: #000 !important;
-}
-
-button:hover {
-    background-color: #A4EAC0 !important;
-    border: 1px solid #A4EAC0 !important;
+    padding: 4px 10px;
+    border-radius: 10px;
+    font-size: 13px;
 }
 
 </style>
@@ -111,17 +101,13 @@ button:hover {
 # =========================
 # 💎 HEADER CON LOGO
 # =========================
-col1, col2 = st.columns([1, 4])
+from PIL import Image
 
-try:
-    logo = Image.open("logo.png")
-    with col1:
-        st.image(logo, width=70)
-except:
-    pass
+logo = Image.open("logo.png")
 
-with col2:
-    st.markdown("<h1>NOMASRIMEL</h1>", unsafe_allow_html=True)
+st.markdown("<div style='text-align:center;'>", unsafe_allow_html=True)
+st.image(logo, width=180)
+st.markdown("</div>", unsafe_allow_html=True)
 
 # =========================
 # 📂 LEER CSV (ANTI-ERRORES)
