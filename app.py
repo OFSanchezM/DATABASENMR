@@ -21,7 +21,7 @@ html, body, [class*="css"] {
 
 /* Contenedor */
 section.main > div {
-    background-color: #E5EBE6;
+    background-color: #EEEBE2;
     padding: 25px;
     border-radius: 20px;
 }
