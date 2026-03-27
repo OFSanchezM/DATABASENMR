@@ -18,7 +18,7 @@ html, body, [class*="css"] {
 
 /* Fondo general */
 [data-testid="stAppViewContainer"] {
-    background-color: #EEEBE2;
+    background-color: #0000ff;
 }
 
 /* Contenedor central */
