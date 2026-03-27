@@ -122,7 +122,15 @@ if cliente:
     st.subheader("Historial")
 
     # Ordenar fechas (más nuevas primero)
-    for fecha in sorted(agrupado.keys(), reverse=True):
+    from datetime import datetime
+
+fechas_ordenadas = sorted(
+    agrupado.keys(),
+    key=lambda x: datetime.strptime(x, "%d/%m/%Y"),
+    reverse=True
+)
+
+for fecha in fechas_ordenadas:
 
         st.markdown(f"### 📅 {fecha}")
 
