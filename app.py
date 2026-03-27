@@ -30,13 +30,13 @@ section.main > div {
 h1 {
     font-size: 34px;
     font-weight: 600;
-    color: #000;
+    color: #000000;
     text-align: center;
 }
 
 h3 {
     font-size: 20px;
-    color: #000;
+    color: #000000;
 }
 
 /* Inputs */
