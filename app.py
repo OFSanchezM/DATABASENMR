@@ -59,7 +59,7 @@ div[data-baseweb="select"] > div {
 
 /* Cards */
 .card {
-    background: #FFFFFF;
+    background: #EEEBE2;
     padding: 20px;
     border-radius: 20px;
     margin-bottom: 12px;
