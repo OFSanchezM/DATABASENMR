@@ -50,15 +50,13 @@ input {
 }
 
 /* Select (ESTO ES CLAVE 🔥) */
-cliente = st.text_input("Seleccionar clienta")
-
-if cliente:
-    coincidencias = [c for c in clientes if cliente.lower() in c.lower()]
-else:
-    coincidencias = []
-
-if coincidencias:
-    cliente = coincidencias[0]
+div[data-baseweb="select"] > div {
+    border-radius: 18px !important;
+    border: 1px solid #ddd !important;
+    background-color: #FFFFFF !important;
+    font-size: 16px !important;
+    padding: 6px !important;
+    color: #000;
 }
 
 /* Cards */
