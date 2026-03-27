@@ -71,6 +71,7 @@ div[data-baseweb="select"] > div {
 .title {
     font-size: 18px;
     font-weight: 600;
+    color: #000000
 }
 
 /* Texto secundario */
