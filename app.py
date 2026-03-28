@@ -1,6 +1,3 @@
-PY
-Copiar
-
 import streamlit as st
 from collections import defaultdict
 from datetime import datetime
