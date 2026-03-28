@@ -338,10 +338,10 @@ if cliente:
             # ✅ Precio como clase CSS — sin styles inline complejos
             st.markdown(f"""
 <div class="card">
-    {item['Servicio']}</div>
-    👤 {item['Profesional']}</div>
+    <div class="title">{item['Servicio']}</div>
+    <div class="small">👤 {item['Profesional']}</div>
     {reagendo_html}
     {proximo_html}
-    <${item['Precio']:,.0f}</div>
+    <div class="price">${item['Precio']:,.0f}</div>
 </div>
 """, unsafe_allow_html=True)
