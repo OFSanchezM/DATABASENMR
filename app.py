@@ -76,7 +76,7 @@ div[data-baseweb="select"] > div {
 }
 
 div[data-baseweb="select"] span {
-    color: #111 !important;
+    color: #000 !important;
     font-size: 15px !important;
 }
 
