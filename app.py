@@ -124,17 +124,31 @@ def cargar_datos():
     try:
         df = pd.read_csv(
             archivo,
-            on_bad_lines="skip",
             engine="python"
         )
+
+        # 🔥 limpiar nombres de columnas
         df.columns = df.columns.str.strip()
+
+        # 🔥 validar columnas necesarias
+        columnas_necesarias = ["Fecha", "Cliente", "Servicio", "Precio", "Profesional"]
+
+        for col in columnas_necesarias:
+            if col not in df.columns:
+                st.error(f"Falta columna: {col}")
+                return []
+
+        # 🔥 limpiar datos
+        df = df[columnas_necesarias]
+
+        df["Precio"] = pd.to_numeric(df["Precio"], errors="coerce")
+        df = df.dropna(subset=["Cliente", "Fecha"])
+
         return df.to_dict(orient="records")
 
-    except:
-        st.error("Error leyendo el archivo CSV")
+    except Exception as e:
+        st.error(f"Error leyendo CSV: {e}")
         return []
-
-datos = cargar_datos()
 
 # Botón manual refresh
 if st.button("🔄 Actualizar"):
