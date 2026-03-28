@@ -1,360 +1,376 @@
 import streamlit as st
+import pandas as pd
 from datetime import datetime
 
 st.set_page_config(page_title="NOMASRIMEL", layout="centered")
 
-# =========================
-# 🎨 ESTILO
-# =========================
+# -------------------------
+# 🎨 ESTILO PREMIUM + ANIMACIONES
+# -------------------------
 st.markdown("""
 <style>
-@import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@300;400;500;600&display=swap');
 
+@import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Inter:wght@300;400;500&display=swap');
+
+/* ─── Variables ─── */
+:root {
+    --bg:        #060608;
+    --surface:   #0e0e12;
+    --surface2:  #16161c;
+    --border:    rgba(255,255,255,0.06);
+    --border-h:  rgba(255,255,255,0.14);
+    --accent:    #7c6dfa;
+    --accent2:   #e879f9;
+    --text:      #f0f0f6;
+    --muted:     #6b6b80;
+    --radius:    18px;
+}
+
+/* ─── Fondo ─── */
 [data-testid="stAppViewContainer"] {
-    background-color: #F7F5F2;
+    background-color: var(--bg);
+    background-image:
+        radial-gradient(ellipse 80% 50% at 20% -10%, rgba(124,109,250,0.12) 0%, transparent 60%),
+        radial-gradient(ellipse 60% 40% at 80% 110%, rgba(232,121,249,0.08) 0%, transparent 60%);
+    min-height: 100vh;
 }
 
 [data-testid="stHeader"] {
-    background: transparent;
+    background: transparent !important;
 }
 
-html, body, p, span, label, div {
-    font-family: 'DM Sans', sans-serif !important;
-    color: #1A1A1A !important;
+[data-testid="stSidebar"] {
+    background: var(--surface) !important;
+    border-right: 1px solid var(--border) !important;
 }
 
-/* Título principal */
+/* ─── Tipografía ─── */
+html, body, [class*="css"] {
+    font-family: 'Inter', sans-serif;
+    color: var(--text);
+    -webkit-font-smoothing: antialiased;
+}
+
+h1, h2, h3 {
+    font-family: 'Syne', sans-serif;
+    letter-spacing: -0.02em;
+}
+
 h1 {
-    font-family: 'DM Serif Display', serif !important;
-    font-size: 2.6rem !important;
-    letter-spacing: -0.03em !important;
-    color: #1A1A1A !important;
-    margin-bottom: 0 !important;
-}
-
-h2, h3 {
-    font-family: 'DM Sans', sans-serif !important;
-    font-weight: 500 !important;
-    color: #1A1A1A !important;
-}
-
-/* Input */
-input[type="text"], input {
-    background-color: #FFFFFF !important;
-    color: #1A1A1A !important;
-    border: 1.5px solid #E0DDD9 !important;
-    border-radius: 10px !important;
-    font-family: 'DM Sans', sans-serif !important;
-}
-
-/* Select */
-div[data-baseweb="select"] > div {
-    background-color: #FFFFFF !important;
-    color: #1A1A1A !important;
-    border: 1.5px solid #E0DDD9 !important;
-    border-radius: 10px !important;
-}
-
-ul[role="listbox"] {
-    background-color: #FFFFFF !important;
-}
-li[role="option"] {
-    color: #1A1A1A !important;
-    font-family: 'DM Sans', sans-serif !important;
-}
-li[role="option"]:hover {
-    background-color: #F0EDE8 !important;
-}
-
-/* Labels */
-label {
-    font-size: 0.78rem !important;
-    font-weight: 500 !important;
-    text-transform: uppercase !important;
-    letter-spacing: 0.06em !important;
-    color: #888 !important;
-}
-
-/* Botón actualizar */
-.stButton > button {
-    background-color: #1A1A1A !important;
-    color: #FFFFFF !important;
-    border: none !important;
-    border-radius: 10px !important;
-    font-family: 'DM Sans', sans-serif !important;
-    font-size: 0.82rem !important;
-    font-weight: 500 !important;
-    letter-spacing: 0.04em !important;
-    padding: 0.45rem 1.2rem !important;
-    transition: opacity 0.2s;
-}
-.stButton > button:hover {
-    opacity: 0.75 !important;
-}
-
-/* Métricas */
-[data-testid="stMetric"] {
-    background-color: #FFFFFF;
-    border: 1.5px solid #E0DDD9;
-    border-radius: 14px;
-    padding: 1rem 1.2rem;
-}
-[data-testid="stMetricLabel"] p {
-    font-size: 0.72rem !important;
-    text-transform: uppercase !important;
-    letter-spacing: 0.07em !important;
-    color: #888 !important;
-}
-[data-testid="stMetricValue"] {
-    font-family: 'DM Serif Display', serif !important;
-    font-size: 1.8rem !important;
-    color: #1A1A1A !important;
-}
-
-/* Alertas */
-[data-testid="stAlert"] {
-    border-radius: 12px !important;
-    border: none !important;
-    font-size: 0.88rem !important;
-}
-
-/* Cards de historial */
-.visit-card {
-    background: #FFFFFF;
-    padding: 14px 18px;
-    border-radius: 14px;
-    margin-bottom: 8px;
-    border: 1.5px solid #E0DDD9;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
-.visit-card .servicio {
-    font-size: 0.95rem;
-    font-weight: 500;
-    color: #1A1A1A;
-}
-.visit-card .profesional {
-    font-size: 0.78rem;
-    color: #999;
-    margin-top: 2px;
-}
-.visit-card .precio {
-    font-family: 'DM Serif Display', serif;
-    font-size: 1.15rem;
-    color: #1A1A1A;
-    white-space: nowrap;
-}
-
-/* Separador de fecha */
-.fecha-label {
-    font-size: 0.72rem;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.1em;
-    color: #AAAAAA;
-    margin-top: 20px;
-    margin-bottom: 8px;
-    padding-bottom: 6px;
-    border-bottom: 1px solid #E0DDD9;
-}
-
-/* Subtítulo del salón */
-.salon-sub {
-    font-size: 0.78rem;
-    font-weight: 500;
-    letter-spacing: 0.18em;
-    text-transform: uppercase;
-    color: #AAAAAA;
-    margin-top: -6px;
-    margin-bottom: 28px;
-}
-
-/* Nombre clienta */
-.cliente-header {
-    font-family: 'DM Serif Display', serif;
-    font-size: 1.5rem;
-    color: #1A1A1A;
+    font-size: 38px;
+    font-weight: 800;
+    background: linear-gradient(135deg, #fff 30%, var(--accent));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    line-height: 1.1;
     margin-bottom: 4px;
 }
 
-/* Badge activa/inactiva */
-.badge-activa {
-    display: inline-block;
-    background: #EDFAF3;
-    color: #2D8A5F;
-    font-size: 0.72rem;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.07em;
-    padding: 4px 10px;
-    border-radius: 99px;
-    margin-bottom: 20px;
-}
-.badge-inactiva {
-    display: inline-block;
-    background: #FFF4EC;
-    color: #C4622A;
-    font-size: 0.72rem;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.07em;
-    padding: 4px 10px;
-    border-radius: 99px;
-    margin-bottom: 20px;
+h2 {
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--text);
 }
 
-/* Divider */
-hr {
-    border: none;
-    border-top: 1px solid #E0DDD9;
-    margin: 20px 0;
+h3 {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
 }
+
+/* ─── Inputs ─── */
+input, textarea {
+    background: var(--surface2) !important;
+    color: var(--text) !important;
+    border: 1px solid var(--border) !important;
+    border-radius: var(--radius) !important;
+    padding: 14px 16px !important;
+    font-size: 15px !important;
+    font-family: 'Inter', sans-serif !important;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease !important;
+}
+
+input:focus, textarea:focus {
+    border-color: var(--accent) !important;
+    box-shadow: 0 0 0 3px rgba(124,109,250,0.15) !important;
+    outline: none !important;
+}
+
+/* ─── Select ─── */
+div[data-baseweb="select"] > div {
+    background: var(--surface2) !important;
+    border: 1px solid var(--border) !important;
+    border-radius: var(--radius) !important;
+    min-height: 52px !important;
+    transition: border-color 0.2s ease !important;
+}
+
+div[data-baseweb="select"] > div:hover {
+    border-color: var(--border-h) !important;
+}
+
+div[data-baseweb="select"] span {
+    color: var(--text) !important;
+    font-family: 'Inter', sans-serif !important;
+}
+
+/* ─── Dropdown ─── */
+ul[role="listbox"] {
+    background: var(--surface2) !important;
+    border: 1px solid var(--border) !important;
+    border-radius: 14px !important;
+    backdrop-filter: blur(20px) !important;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.6) !important;
+}
+
+li[role="option"] {
+    color: var(--text) !important;
+    font-family: 'Inter', sans-serif !important;
+    border-radius: 10px !important;
+    margin: 2px 6px !important;
+    transition: background 0.15s ease !important;
+}
+
+li[role="option"]:hover {
+    background: rgba(124,109,250,0.15) !important;
+}
+
+/* ─── Botones ─── */
+.stButton > button {
+    background: linear-gradient(135deg, var(--accent), var(--accent2)) !important;
+    color: #fff !important;
+    border: none !important;
+    border-radius: var(--radius) !important;
+    padding: 12px 26px !important;
+    font-family: 'Syne', sans-serif !important;
+    font-size: 15px !important;
+    font-weight: 700 !important;
+    letter-spacing: 0.01em !important;
+    cursor: pointer !important;
+    transition: all 0.2s ease !important;
+    box-shadow: 0 4px 20px rgba(124,109,250,0.3) !important;
+}
+
+.stButton > button:hover {
+    transform: translateY(-2px) !important;
+    box-shadow: 0 8px 30px rgba(124,109,250,0.45) !important;
+}
+
+.stButton > button:active {
+    transform: translateY(0) !important;
+}
+
+/* ─── Cards ─── */
+.card {
+    background: var(--surface);
+    padding: 22px;
+    border-radius: var(--radius);
+    margin-bottom: 14px;
+    border: 1px solid var(--border);
+    transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(124,109,250,0.4), transparent);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 16px 40px rgba(0,0,0,0.5), 0 0 0 1px rgba(124,109,250,0.2);
+    border-color: var(--border-h);
+}
+
+.card:hover::before {
+    opacity: 1;
+}
+
+/* ─── Métricas ─── */
+[data-testid="stMetric"] {
+    background: var(--surface) !important;
+    border: 1px solid var(--border) !important;
+    border-radius: var(--radius) !important;
+    padding: 20px !important;
+    transition: border-color 0.2s ease !important;
+}
+
+[data-testid="stMetric"]:hover {
+    border-color: rgba(124,109,250,0.3) !important;
+}
+
+[data-testid="stMetricLabel"] {
+    font-family: 'Syne', sans-serif !important;
+    font-size: 12px !important;
+    font-weight: 600 !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.08em !important;
+    color: var(--muted) !important;
+}
+
+[data-testid="stMetricValue"] {
+    font-family: 'Syne', sans-serif !important;
+    font-size: 32px !important;
+    font-weight: 800 !important;
+    color: var(--text) !important;
+}
+
+[data-testid="stMetricDelta"] {
+    font-size: 13px !important;
+    font-weight: 500 !important;
+}
+
+/* ─── Divider ─── */
+hr {
+    border: none !important;
+    border-top: 1px solid var(--border) !important;
+    margin: 24px 0 !important;
+}
+
+/* ─── Fade animation ─── */
+.fade {
+    animation: fadeUp 0.45s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+@keyframes fadeUp {
+    from { opacity: 0; transform: translateY(14px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ─── Scrollbar ─── */
+::-webkit-scrollbar { width: 5px; height: 5px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb {
+    background: rgba(255,255,255,0.1);
+    border-radius: 10px;
+}
+::-webkit-scrollbar-thumb:hover {
+    background: rgba(124,109,250,0.4);
+}
+
+/* ─── Stagger children ─── */
+.stVerticalBlock > div:nth-child(1) { animation: fadeUp 0.4s 0.05s both; }
+.stVerticalBlock > div:nth-child(2) { animation: fadeUp 0.4s 0.10s both; }
+.stVerticalBlock > div:nth-child(3) { animation: fadeUp 0.4s 0.15s both; }
+.stVerticalBlock > div:nth-child(4) { animation: fadeUp 0.4s 0.20s both; }
+.stVerticalBlock > div:nth-child(5) { animation: fadeUp 0.4s 0.25s both; }
 
 </style>
 """, unsafe_allow_html=True)
-
-
-# =========================
-# 📂 CARGA DE DATOS
-# =========================
-@st.cache_data
+# -------------------------
+# 🔄 CARGA DATOS
+# -------------------------
 def cargar_datos():
-    archivo = "facturas_salon.csv"
-    datos = []
-
     try:
-        with open(archivo, encoding="utf-8") as f:
-            for linea in f:
-                partes = linea.strip().split(",")
+        df = pd.read_csv("facturas_salon.csv", encoding="utf-8", on_bad_lines="skip")
 
-                # Ignora líneas con columnas insuficientes
-                if len(partes) < 6:
-                    continue
+        df.columns = df.columns.str.strip()
 
-                try:
-                    datos.append({
-                        "Fecha":       partes[1].strip(),
-                        "Cliente":     partes[2].strip(),
-                        "Servicio":    partes[3].strip(),
-                        "Precio":      float(partes[4]),
-                        "Profesional": partes[5].strip(),
-                    })
-                except (ValueError, IndexError):
-                    continue
+        df["Precio"] = pd.to_numeric(df["Precio"], errors="coerce")
+        df["Fecha"] = pd.to_datetime(df["Fecha"], dayfirst=True, errors="coerce")
 
-    except FileNotFoundError:
-        st.error("No se encontró el archivo facturas_salon.csv")
-        return []
+        df = df.dropna(subset=["Cliente"])
+
+        return df
+
     except Exception as e:
-        st.error(f"Error al leer el archivo: {e}")
-        return []
-
-    return datos
+        st.error(f"Error leyendo archivo: {e}")
+        return pd.DataFrame()
 
 
-def parse_fecha(f):
-    for fmt in ("%d/%m/%Y", "%Y-%m-%d", "%d-%m-%Y"):
-        try:
-            return datetime.strptime(str(f).strip(), fmt)
-        except ValueError:
-            continue
-    return datetime.min
+# -------------------------
+# 🔄 BOTÓN ACTUALIZAR REAL
+# -------------------------
+if st.button("🔄 Actualizar"):
+    st.cache_data.clear()
+    st.toast("Datos actualizados 🔥")
+    st.rerun()
 
+df = cargar_datos()
 
-# =========================
-# 🚀 APP
-# =========================
-datos = cargar_datos()
-
-# Encabezado
-col_title, col_btn = st.columns([5, 1])
-with col_title:
-    st.markdown("<h1>NOMASRIMEL</h1>", unsafe_allow_html=True)
-    st.markdown('<p class="salon-sub">Gestión de clientas</p>', unsafe_allow_html=True)
-with col_btn:
-    st.markdown("<br>", unsafe_allow_html=True)
-    if st.button("↺ Sync"):
-        st.cache_data.clear()
-        st.rerun()
-
-# Buscador
-nombre = st.text_input("Buscar clienta", placeholder="Nombre...")
-
-# Lista de clientas únicas, filtrada si hay búsqueda
-clientes = sorted({d["Cliente"] for d in datos if d.get("Cliente")})
-if nombre:
-    clientes = [c for c in clientes if nombre.lower() in c.lower()]
-
-if not clientes:
-    st.info("No se encontraron clientas con ese nombre.")
+if df.empty:
+    st.warning("No hay datos")
     st.stop()
+
+
+# -------------------------
+# 🔍 BUSCADOR
+# -------------------------
+st.title("Buscar clienta")
+
+busqueda = st.text_input("Nombre")
+
+clientes = sorted(df["Cliente"].unique())
+
+if busqueda:
+    clientes = [c for c in clientes if busqueda.lower() in c.lower()]
 
 cliente = st.selectbox("Seleccionar clienta", clientes)
 
-st.markdown("<hr>", unsafe_allow_html=True)
 
-# =========================
+# -------------------------
 # 👤 PERFIL CLIENTA
-# =========================
+# -------------------------
 if cliente:
-    historial = [
-        d for d in datos
-        if d.get("Cliente", "").strip().lower() == cliente.strip().lower()
-    ]
 
-    if not historial:
-        st.warning("No hay historial registrado para esta clienta.")
-        st.stop()
+    st.toast("Cliente cargado ✨")
 
-    historial.sort(key=lambda x: parse_fecha(x["Fecha"]), reverse=True)
+    df_cliente = df[df["Cliente"] == cliente]
 
-    ultima_fecha = parse_fecha(historial[0]["Fecha"])
-    dias = (datetime.now() - ultima_fecha).days
-    total = sum(d["Precio"] for d in historial)
-    visitas = len({d["Fecha"] for d in historial})
+    st.markdown("---")
 
-    # Nombre + badge de estado
-    st.markdown(f'<div class="cliente-header">{cliente}</div>', unsafe_allow_html=True)
+    st.header(cliente)
+
+    total = df_cliente["Precio"].sum()
+    visitas = df_cliente["Fecha"].nunique()
+
+    st.metric("Total gastado", f"${total:,.0f}")
+    st.metric("Visitas", visitas)
+
+    ultima = df_cliente["Fecha"].max()
+    dias = (datetime.now() - ultima).days
+
     if dias > 21:
-        st.markdown(
-            f'<span class="badge-inactiva">⚠ Sin visita hace {dias} días</span>',
-            unsafe_allow_html=True
-        )
+        st.warning(f"⚠ No vino hace {dias} días")
     else:
-        st.markdown(
-            f'<span class="badge-activa">✓ Activa — última visita hace {dias} días</span>',
-            unsafe_allow_html=True
-        )
+        st.success("✔ Clienta activa")
 
-    # Métricas
-    col1, col2 = st.columns(2)
-    with col1:
-        st.metric("Total gastado", f"${total:,.0f}")
-    with col2:
-        st.metric("Visitas registradas", visitas)
+    # -------------------------
+    # 📜 HISTORIAL ANIMADO
+    # -------------------------
+    st.markdown("## Historial")
 
-    st.markdown("<br>", unsafe_allow_html=True)
-    st.markdown("**Historial de visitas**")
+    df_cliente = df_cliente.sort_values("Fecha", ascending=False)
 
-    # Agrupar por fecha
-    fechas: dict = {}
-    for d in historial:
-        fechas.setdefault(d["Fecha"], []).append(d)
+    fechas = df_cliente["Fecha"].dt.date.unique()
 
-    for fecha, items in fechas.items():
-        subtotal = sum(i["Precio"] for i in items)
-        st.markdown(
-            f'<div class="fecha-label">{fecha} &nbsp;·&nbsp; ${subtotal:,.0f}</div>',
-            unsafe_allow_html=True
-        )
-        for item in items:
+    for fecha in fechas:
+
+        st.markdown(f"### 📅 {fecha}")
+
+        df_fecha = df_cliente[df_cliente["Fecha"].dt.date == fecha]
+
+        for _, row in df_fecha.iterrows():
+
             st.markdown(f"""
-            <div class="visit-card">
-                <div>
-                    <div class="servicio">{item['Servicio']}</div>
-                    <div class="profesional">{item['Profesional']}</div>
+            <div class="card fade">
+                <div style="font-size:16px;font-weight:600;">
+                    {row['Servicio']}
                 </div>
-                <div class="precio">${item['Precio']:,.0f}</div>
+                <div style="color:#aaa;font-size:13px;">
+                    {row['Profesional']}
+                </div>
+                <div style="font-size:18px;font-weight:700;margin-top:5px;">
+                    ${row['Precio']:,.0f}
+                </div>
             </div>
             """, unsafe_allow_html=True)
