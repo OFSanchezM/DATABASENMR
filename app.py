@@ -121,9 +121,18 @@ archivo = "facturas_salon.csv"
 
 @st.cache_data(ttl=60)
 def cargar_datos():
-    df = pd.read_csv(archivo)
-    df.columns = df.columns.str.strip()
-    return df.to_dict(orient="records")
+    try:
+        df = pd.read_csv(
+            archivo,
+            on_bad_lines="skip",
+            engine="python"
+        )
+        df.columns = df.columns.str.strip()
+        return df.to_dict(orient="records")
+
+    except:
+        st.error("Error leyendo el archivo CSV")
+        return []
 
 datos = cargar_datos()
 
