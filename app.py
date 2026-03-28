@@ -10,82 +10,104 @@ st.set_page_config(page_title="NOMASRIMEL", layout="wide")
 # =========================
 st.markdown("""
 <style>
-    /* 1. Reset de Color Base (Evita el conflicto de texto negro sobre negro) */
-    :root {
-        --text-main: #1A1A1A;
-        --text-secondary: #666666;
-        --bg-input: #FFFFFF;
-        --border-color: #E0E0E0;
+    /* 1. FONDO GENERAL NEGRO */
+    [data-testid="stAppViewContainer"], [data-testid="stHeader"] {
+        background-color: #000000 !important;
     }
 
-    /* 2. Tipografía y Color General */
-    html, body, [class*="css"], .stMarkdown, p, span {
-        color: var(--text-main) !important;
-        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    /* 2. TEXTO GENERAL EN BLANCO */
+    html, body, [class*="css"], .stMarkdown, p, span, label {
+        color: #FFFFFF !important;
+        font-family: -apple-system, BlinkMacSystemFont, sans-serif;
     }
 
-    /* 3. Labels (Nombres de los campos) - Ahora legibles */
-    data-testid="stWidgetLabel", label, .st-at {
-        color: var(--text-main) !important;
-        font-weight: 500 !important;
-        margin-bottom: 8px !important;
+    /* 3. CAJAS DE ENTRADA (Inputs, Textarea, Select) */
+    /* Fondo blanco y texto negro como pediste */
+    div[data-baseweb="input"], 
+    div[data-baseweb="select"] > div, 
+    textarea, 
+    input {
+        background-color: #FFFFFF !important;
+        color: #000000 !important;
+        border-radius: 12px !important;
+        border: none !important;
     }
 
-    /* 4. Inputs y Textareas (Escritura limpia) */
+    /* Forzar que el texto escrito sea negro */
     input, textarea {
-        color: var(--text-main) !important;
-        background-color: var(--bg-input) !important;
-        border: 1px solid var(--border-color) !important;
-        border-radius: 12px !important;
+        color: #000000 !important;
+        -webkit-text-fill-color: #000000 !important;
     }
 
-    input::placeholder {
-        color: #A0A0A0 !important;
+    /* Placeholder en gris oscuro para que se vea sobre el blanco */
+    input::placeholder, textarea::placeholder {
+        color: #666666 !important;
+        -webkit-text-fill-color: #666666 !important;
     }
 
-    /* 5. Selectbox (Dropdowns) - Fix de visibilidad */
-    div[data-baseweb="select"] {
-        background-color: var(--bg-input) !important;
-        border-radius: 12px !important;
+    /* 4. SELECTBOX (Desplegables) */
+    /* El valor seleccionado */
+    div[data-testid="stSelectbox"] div[data-baseweb="select"] > div {
+        background-color: #FFFFFF !important;
+    }
+    
+    /* El texto del valor seleccionado */
+    div[data-testid="stSelectbox"] span {
+        color: #000000 !important;
     }
 
-    div[data-baseweb="select"] * {
-        color: var(--text-main) !important;
-    }
-
-    /* Estilo para las opciones cuando se abre el menú */
+    /* El menú que se despliega */
     ul[role="listbox"] {
         background-color: #FFFFFF !important;
     }
     
     li[role="option"] {
-        color: var(--text-main) !important;
+        color: #000000 !important;
     }
 
-    /* 6. Slider (Control de deslizamiento) */
+    /* 5. SLIDER */
     [data-testid="stSlider"] {
-        background-color: #F8F9FA !important;
+        background-color: #111111 !important; /* Un gris casi negro para que se note el área */
         padding: 15px 25px !important;
         border-radius: 16px !important;
-        border: 1px solid #F0F0F0;
+        border: 1px solid #333333;
+    }
+    
+    /* Números del slider en blanco */
+    [data-testid="stSlider"] div {
+        color: #FFFFFF !important;
     }
 
-    [data-testid="stSlider"] label {
-        color: var(--text-main) !important;
+    /* 6. MÉTRICAS Y CARDS */
+    [data-testid="stMetric"], .card {
+        background-color: #111111 !important;
+        border: 1px solid #222222 !important;
+        border-radius: 16px !important;
     }
 
-    /* 7. Arreglo para elementos de Streamlit que a veces fuerzan blanco */
-    .stMarkdown p {
-        color: var(--text-main) !important;
+    /* 7. BOTONES */
+    button[kind="secondary"] {
+        background-color: #FFFFFF !important;
+        color: #000000 !important;
+        border-radius: 12px !important;
+        font-weight: 600 !important;
+        border: none !important;
+        transition: 0.3s;
     }
 
-    /* 8. Logo centrado y estético */
-    [data-testid="stImage"] {
-        display: flex;
-        justify-content: center;
-        margin-bottom: 2rem;
+    button[kind="secondary"]:hover {
+        background-color: #E0E0E0 !important;
+        transform: scale(1.02);
     }
 
+    /* Scrollbar sutil */
+    ::-webkit-scrollbar {
+        width: 5px;
+    }
+    ::-webkit-scrollbar-thumb {
+        background: #333;
+        border-radius: 10px;
+    }
 </style>
 """, unsafe_allow_html=True)
 # =========================
