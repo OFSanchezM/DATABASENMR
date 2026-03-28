@@ -5,37 +5,15 @@ from datetime import datetime
 st.set_page_config(page_title="NOMASRIMEL", layout="centered")
 
 # -------------------------
-# 🎨 UI PREMIUM
+# 🎨 UI PREMIUM (CSS)
 # -------------------------
 st.markdown("""
 <style>
-[data-testid="stAppViewContainer"] {
-    background-color: #050505;
-}
-
-html, body {
-    color: #fff;
-    font-family: -apple-system, sans-serif;
-}
-
-/* Inputs */
-input {
-    background: #111 !important;
-    color: white !important;
-    border-radius: 14px !important;
-}
-
-/* Select */
-div[data-baseweb="select"] > div {
-    background: #111 !important;
-    border-radius: 14px !important;
-}
-
-div[data-baseweb="select"] span {
-    color: white !important;
-}
-
-/* Cards */
+[data-testid="stAppViewContainer"] { background-color: #050505; }
+html, body { color: #fff; font-family: -apple-system, sans-serif; }
+input { background: #111 !important; color: white !important; border-radius: 14px !important; }
+div[data-baseweb="select"] > div { background: #111 !important; border-radius: 14px !important; }
+div[data-baseweb="select"] span { color: white !important; }
 .card {
     background: #111;
     padding: 18px;
@@ -44,16 +22,8 @@ div[data-baseweb="select"] span {
     border: 1px solid #222;
     transition: 0.2s;
 }
-
-.card:hover {
-    transform: translateY(-4px);
-}
-
-/* Fade */
-.fade {
-    animation: fade 0.4s ease-in-out;
-}
-
+.card:hover { transform: translateY(-4px); }
+.fade { animation: fade 0.4s ease-in-out; }
 @keyframes fade {
     from {opacity:0; transform:translateY(10px);}
     to {opacity:1; transform:translateY(0);}
@@ -62,110 +32,138 @@ div[data-baseweb="select"] span {
 """, unsafe_allow_html=True)
 
 # -------------------------
-# 📂 CARGAR DATOS (ROBUSTO)
+# 📂 CARGAR DATOS (REPARADO)
 # -------------------------
+@st.cache_data(ttl=60) # Cacheamos para que sea más rápido
 def cargar_datos():
     try:
-        df = pd.read_csv("facturas_salon.csv", encoding="utf-8", sep=",")
+        # Cargamos con engine python por si hay caracteres especiales
+        df = pd.read_csv("facturas_salon.csv", encoding="utf-8", sep=",", engine="python")
+        
+        # Limpiar nombres de columnas (quitar espacios invisibles)
         df.columns = df.columns.str.strip()
 
-        # Limpiar strings básicos primero
-        for col in ["Cliente", "Servicio", "Profesional"]:
-            df[col] = df[col].astype(str).str.strip()
+        # Validar que las columnas necesarias existan
+        columnas_req = ["Fecha", "Cliente", "Servicio", "Precio", "Profesional"]
+        for col in columnas_req:
+            if col not in df.columns:
+                st.error(f"Error: No se encuentra la columna '{col}' en el CSV.")
+                return pd.DataFrame()
 
-        # Convertir Precio a número (si falla pone 0 en lugar de borrar la fila)
+        # LIMPIEZA DE DATOS
+        # 1. Convertir a String y quitar espacios en blanco en los nombres
+        df["Cliente"] = df["Cliente"].astype(str).str.strip()
+        df["Servicio"] = df["Servicio"].astype(str).str.strip()
+        df["Profesional"] = df["Profesional"].astype(str).str.strip()
+
+        # 2. Convertir Precio a número (si falla pone 0 en lugar de borrar la fila)
         df["Precio"] = pd.to_numeric(df["Precio"], errors="coerce").fillna(0)
 
-        # Convertir Fecha (Prueba sin dayfirst si ves que fallan las fechas)
-        df["Fecha"] = pd.to_datetime(df["Fecha"], errors="coerce")
+        # 3. Convertir Fecha (Manejo robusto de errores)
+        df["Fecha"] = pd.to_datetime(df["Fecha"], dayfirst=True, errors="coerce")
 
-        # IMPORTANTE: Solo borramos si el nombre del cliente está vacío. 
-        # Si la fecha falla, le asignamos una fecha genérica para que no desaparezca.
-        df = df[df["Cliente"] != "nan"] 
-        df["Fecha"] = df["Fecha"].fillna(datetime(2000, 1, 1)) 
+        # 4. Filtrado preventivo: Solo quitar si el Cliente está vacío o es 'nan'
+        df = df[df["Cliente"].notna() & (df["Cliente"] != "nan") & (df["Cliente"] != "")]
+        
+        # Si la fecha falló (NaT), le ponemos una fecha por defecto para que no desaparezca la fila
+        df["Fecha"] = df["Fecha"].fillna(pd.Timestamp('2000-01-01'))
 
         return df
+
+    except FileNotFoundError:
+        st.error("Archivo 'facturas_salon.csv' no encontrado.")
+        return pd.DataFrame()
     except Exception as e:
-        st.error(f"Error: {e}")
+        st.error(f"Error crítico leyendo CSV: {e}")
         return pd.DataFrame()
 
-# --- EN LA SECCIÓN DE HISTORIAL ---
-# Cambia el filtro por uno más robusto:
-for fecha in sorted(df_cliente["Fecha"].dt.date.unique(), reverse=True):
-    st.markdown(f"### 📅 {fecha}")
-    
-    # Usamos .astype(str) para comparar fechas de forma segura
-    df_fecha = df_cliente[df_cliente["Fecha"].dt.date.astype(str) == str(fecha)]
-    
-    for _, row in df_fecha.iterrows():
-        # Tu código de st.markdown(...)
+# -------------------------
+# 🔥 FLUJO PRINCIPAL
+# -------------------------
+df = cargar_datos()
+
+if df.empty:
+    st.warning("⚠ No hay datos disponibles o el archivo está vacío.")
+    st.stop()
+
+# Botón de actualización
+if st.sidebar.button("🔄 Refrescar Datos"):
+    st.cache_data.clear()
+    st.rerun()
 
 # -------------------------
 # 🔍 BUSCADOR
 # -------------------------
 st.title("Buscar clienta")
+busqueda = st.text_input("Escribe el nombre...")
 
-busqueda = st.text_input("Nombre")
-
-clientes = sorted(df["Cliente"].unique())
+# Obtener lista de clientes únicos y limpios
+clientes_lista = sorted(df["Cliente"].unique())
 
 if busqueda:
-    clientes = [c for c in clientes if busqueda.lower() in c.lower()]
+    clientes_filtrados = [c for c in clientes_lista if busqueda.lower() in c.lower()]
+else:
+    clientes_filtrados = clientes_lista
 
-cliente = st.selectbox("Seleccionar clienta", [""] + clientes)
+cliente_seleccionado = st.selectbox("Seleccionar de la lista", [""] + clientes_filtrados)
 
 # -------------------------
-# 👤 PERFIL
+# 👤 PERFIL Y HISTORIAL
 # -------------------------
-if cliente:
-
-    st.toast("Cliente cargado 🔥")
-
-    df_cliente = df[df["Cliente"] == cliente]
-
-    st.markdown("---")
-    st.header(cliente)
-
-    total = df_cliente["Precio"].sum()
-    visitas = df_cliente["Fecha"].nunique()
-
-    col1, col2 = st.columns(2)
-    col1.metric("Total gastado", f"${total:,.0f}")
-    col2.metric("Visitas", visitas)
-
-    ultima = df_cliente["Fecha"].max()
-    dias = (datetime.now() - ultima).days
-
-    if dias > 21:
-        st.warning(f"⚠ No vino hace {dias} días")
-    else:
-        st.success("✔ Clienta activa")
-
-    # -------------------------
-    # 📜 HISTORIAL
-    # -------------------------
-    st.markdown("## Historial")
-
+if cliente_seleccionado:
+    st.toast(f"Cargando a {cliente_seleccionado}...")
+    
+    # Filtrar datos de la clienta
+    df_cliente = df[df["Cliente"] == cliente_seleccionado].copy()
+    
+    # Ordenar por fecha descendente (lo más nuevo primero)
     df_cliente = df_cliente.sort_values("Fecha", ascending=False)
 
-    for fecha in df_cliente["Fecha"].dt.date.unique():
+    st.markdown("---")
+    st.header(cliente_seleccionado)
 
-        st.markdown(f"### 📅 {fecha}")
+    # Métricas principales
+    total_gastado = df_cliente["Precio"].sum()
+    total_visitas = len(df_cliente)
 
-        df_fecha = df_cliente[df_cliente["Fecha"].dt.date == fecha]
+    c1, c2 = st.columns(2)
+    c1.metric("Total gastado", f"${total_gastado:,.0f}")
+    c2.metric("Visitas totales", total_visitas)
 
-        for _, row in df_fecha.iterrows():
+    # Estado de actividad
+    ultima_fecha = df_cliente["Fecha"].max()
+    if ultima_fecha != pd.Timestamp('2000-01-01'):
+        dias_desde_ultima = (datetime.now() - ultima_fecha).days
+        if dias_desde_ultima > 21:
+            st.warning(f"⚠ Última visita hace {dias_desde_ultima} días")
+        else:
+            st.success(f"✔ Clienta activa (Vino hace {dias_desde_ultima} días)")
+    else:
+        st.info("📅 Sin fecha de visita registrada")
 
+    # 📜 SECCIÓN HISTORIAL
+    st.markdown("## Historial de Servicios")
+
+    # Agrupamos por fecha para mostrar encabezados limpios
+    fechas_unicas = df_cliente["Fecha"].dt.date.unique()
+
+    for fecha in fechas_unicas:
+        # Formatear fecha para el título
+        fecha_str = fecha.strftime("%d / %m / %Y") if fecha.year > 2000 else "Sin Fecha"
+        st.markdown(f"#### 📅 {fecha_str}")
+
+        # Filtrar servicios de ese día específico
+        servicios_dia = df_cliente[df_cliente["Fecha"].dt.date == fecha]
+
+        for _, row in servicios_dia.iterrows():
             st.markdown(f"""
             <div class="card fade">
-                <div style="font-weight:600;">
-                    {row['Servicio']}
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <span style="font-weight:600; font-size: 16px;">{row['Servicio']}</span>
+                    <span style="font-size:18px; font-weight:700; color:#fff;">${row['Precio']:,.0f}</span>
                 </div>
-                <div style="color:#aaa;font-size:13px;">
-                    {row['Profesional']}
-                </div>
-                <div style="font-size:18px;font-weight:700;margin-top:4px;">
-                    ${row['Precio']:,.0f}
+                <div style="color:#888; font-size:13px; margin-top: 4px;">
+                    Profesional: {row['Profesional']}
                 </div>
             </div>
             """, unsafe_allow_html=True)
