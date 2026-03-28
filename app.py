@@ -161,7 +161,7 @@ st.markdown("## Buscar clienta")
 
 cliente_input = st.text_input("Nombre")
 
-clientes = sorted(list(set(d["Cliente"] for d in datos)))
+clientes = sorted(list(set([d["Cliente"] for d in datos])))
 
 if cliente_input:
     clientes_filtrados = [c for c in clientes if cliente_input.lower() in c.lower()]
