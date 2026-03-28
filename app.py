@@ -138,27 +138,20 @@ button[kind="secondary"]:hover {
 # =========================
 # 📂 LEER CSV
 # =========================
+import pandas as pd
+
 archivo = "facturas_salon.csv"
-datos = []
 
-with open(archivo, encoding="utf-8") as f:
-    for linea in f:
-        partes = linea.strip().split(",")
+@st.cache_data(ttl=60)
+def cargar_datos():
+    df = pd.read_csv(archivo)
 
-        if len(partes) < 6:
-            continue
+    # 🔥 Limpiamos columnas por si vienen con espacios
+    df.columns = df.columns.str.strip()
 
-        try:
-            datos.append({
-                "Fecha": partes[1],
-                "Cliente": partes[2],
-                "Servicio": partes[3],
-                "Precio": float(partes[4]),
-                "Profesional": partes[5],
-            })
-        except:
-            continue
+    return df.to_dict(orient="records")
 
+datos = cargar_datos()
 # =========================
 # 🔍 BUSCADOR + SELECT
 # =========================
