@@ -66,58 +66,39 @@ div[data-baseweb="select"] span {
 # -------------------------
 def cargar_datos():
     try:
-        df = pd.read_csv(
-            "facturas_salon.csv",
-            encoding="utf-8",
-            sep=",",
-            engine="python",
-            on_bad_lines="skip"
-        )
-
+        df = pd.read_csv("facturas_salon.csv", encoding="utf-8", sep=",")
         df.columns = df.columns.str.strip()
 
-        # Validar columnas
-        columnas = ["Fecha", "Cliente", "Servicio", "Precio", "Profesional"]
-        for col in columnas:
-            if col not in df.columns:
-                st.error(f"Falta columna: {col}")
-                return pd.DataFrame()
+        # Limpiar strings básicos primero
+        for col in ["Cliente", "Servicio", "Profesional"]:
+            df[col] = df[col].astype(str).str.strip()
 
-        # Limpiar
-        df["Cliente"] = df["Cliente"].astype(str).str.strip()
-        df["Servicio"] = df["Servicio"].astype(str).str.strip()
-        df["Profesional"] = df["Profesional"].astype(str).str.strip()
+        # Convertir Precio a número (si falla pone 0 en lugar de borrar la fila)
+        df["Precio"] = pd.to_numeric(df["Precio"], errors="coerce").fillna(0)
 
-        df["Precio"] = pd.to_numeric(df["Precio"], errors="coerce")
+        # Convertir Fecha (Prueba sin dayfirst si ves que fallan las fechas)
+        df["Fecha"] = pd.to_datetime(df["Fecha"], errors="coerce")
 
-        df["Fecha"] = pd.to_datetime(
-            df["Fecha"],
-            dayfirst=True,
-            errors="coerce"
-        )
-
-        df = df.dropna(subset=["Cliente", "Fecha"])
+        # IMPORTANTE: Solo borramos si el nombre del cliente está vacío. 
+        # Si la fecha falla, le asignamos una fecha genérica para que no desaparezca.
+        df = df[df["Cliente"] != "nan"] 
+        df["Fecha"] = df["Fecha"].fillna(datetime(2000, 1, 1)) 
 
         return df
-
     except Exception as e:
-        st.error(f"Error leyendo CSV: {e}")
+        st.error(f"Error: {e}")
         return pd.DataFrame()
 
-# -------------------------
-# 🔥 CARGAR DF (CLAVE)
-# -------------------------
-df = cargar_datos()
-
-if df.empty:
-    st.warning("⚠ No hay datos en el archivo")
-    st.stop()
-
-# -------------------------
-# 🔄 REFRESH
-# -------------------------
-if st.button("🔄 Actualizar"):
-    st.rerun()
+# --- EN LA SECCIÓN DE HISTORIAL ---
+# Cambia el filtro por uno más robusto:
+for fecha in sorted(df_cliente["Fecha"].dt.date.unique(), reverse=True):
+    st.markdown(f"### 📅 {fecha}")
+    
+    # Usamos .astype(str) para comparar fechas de forma segura
+    df_fecha = df_cliente[df_cliente["Fecha"].dt.date.astype(str) == str(fecha)]
+    
+    for _, row in df_fecha.iterrows():
+        # Tu código de st.markdown(...)
 
 # -------------------------
 # 🔍 BUSCADOR
