@@ -10,105 +10,129 @@ st.set_page_config(page_title="NOMASRIMEL", layout="wide")
 # =========================
 st.markdown("""
 <style>
-    /* 1. FONDO GENERAL NEGRO */
-    [data-testid="stAppViewContainer"], [data-testid="stHeader"] {
-        background-color: #000000 !important;
-    }
 
-    /* 2. TEXTO GENERAL EN BLANCO */
-    html, body, [class*="css"], .stMarkdown, p, span, label {
-        color: #FFFFFF !important;
-        font-family: -apple-system, BlinkMacSystemFont, sans-serif;
-    }
+/* ===== FONDO ===== */
+[data-testid="stAppViewContainer"], 
+[data-testid="stHeader"] {
+    background-color: #000000 !important;
+}
 
-    /* 3. CAJAS DE ENTRADA (Inputs, Textarea, Select) */
-    /* Fondo blanco y texto negro como pediste */
-    div[data-baseweb="input"], 
-    div[data-baseweb="select"] > div, 
-    textarea, 
-    input {
-        background-color: #FFFFFF !important;
-        color: #000000 !important;
-        border-radius: 12px !important;
-        border: none !important;
-    }
+/* ===== TIPOGRAFÍA BASE ===== */
+html, body {
+    font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+}
 
-    /* Forzar que el texto escrito sea negro */
-    input, textarea {
-        color: #000000 !important;
-        -webkit-text-fill-color: #000000 !important;
-    }
+/* SOLO TEXTO GENERAL (NO inputs) */
+h1, h2, h3, p {
+    color: #FFFFFF;
+}
 
-    /* Placeholder en gris oscuro para que se vea sobre el blanco */
-    input::placeholder, textarea::placeholder {
-        color: #666666 !important;
-        -webkit-text-fill-color: #666666 !important;
-    }
+/* LABELS */
+label {
+    color: #CCCCCC !important;
+}
 
-    /* 4. SELECTBOX (Desplegables) */
-    /* El valor seleccionado */
-    div[data-testid="stSelectbox"] div[data-baseweb="select"] > div {
-        background-color: #FFFFFF !important;
-    }
-    
-    /* El texto del valor seleccionado */
-    div[data-testid="stSelectbox"] span {
-        color: #000000 !important;
-    }
+/* ===== INPUTS ===== */
+div[data-baseweb="input"], 
+textarea, 
+input {
+    background-color: #FFFFFF !important;
+    color: #000000 !important;
+    border-radius: 14px !important;
+    border: none !important;
+}
 
-    /* El menú que se despliega */
-    ul[role="listbox"] {
-        background-color: #FFFFFF !important;
-            color: #000;
-    }
-    
-    li[role="option"] {
-        color: #000000 !important;
-    }
+/* TEXTO ESCRITO */
+input, textarea {
+    color: #000000 !important;
+    -webkit-text-fill-color: #000000 !important;
+}
 
-    /* 5. SLIDER */
-    [data-testid="stSlider"] {
-        background-color: #111111 !important; /* Un gris casi negro para que se note el área */
-        padding: 15px 25px !important;
-        border-radius: 16px !important;
-        border: 1px solid #333333;
-    }
-    
-    /* Números del slider en blanco */
-    [data-testid="stSlider"] div {
-        color: #FFFFFF !important;
-    }
+/* PLACEHOLDER */
+input::placeholder, textarea::placeholder {
+    color: #666666 !important;
+}
 
-    /* 6. MÉTRICAS Y CARDS */
-    [data-testid="stMetric"], .card {
-        background-color: #111111 !important;
-        border: 1px solid #222222 !important;
-        border-radius: 16px !important;
-    }
+/* ===== SELECTBOX ===== */
 
-    /* 7. BOTONES */
-    button[kind="secondary"] {
-        background-color: #FFFFFF !important;
-        color: #000000 !important;
-        border-radius: 12px !important;
-        font-weight: 600 !important;
-        border: none !important;
-        transition: 0.3s;
-    }
+/* Caja */
+div[data-baseweb="select"] > div {
+    background-color: #FFFFFF !important;
+    border-radius: 14px !important;
+}
 
-    button[kind="secondary"]:hover {
-        background-color: #E0E0E0 !important;
-        transform: scale(1.02);
-    }
+/* Texto seleccionado */
+div[data-baseweb="select"] span {
+    color: #000000 !important;
+}
 
-    /* Scrollbar sutil */
-    ::-webkit-scrollbar {
-        width: 5px;
-    }
-    ::-webkit-scrollbar-thumb {
-        background: #333;
-        border-radius: 10px;
-    }
+/* Dropdown */
+div[role="listbox"] {
+    background-color: #FFFFFF !important;
+    border-radius: 12px !important;
+}
+
+/* Opciones */
+div[role="option"] {
+    color: #000000 !important;
+    background-color: #FFFFFF !important;
+}
+
+/* Hover */
+div[role="option"]:hover {
+    background-color: #F2F2F2 !important;
+}
+
+/* ===== SLIDER ===== */
+[data-testid="stSlider"] {
+    background-color: #111111 !important;
+    padding: 15px 20px !important;
+    border-radius: 16px !important;
+    border: 1px solid #333333;
+}
+
+/* Texto slider */
+[data-testid="stSlider"] * {
+    color: #FFFFFF !important;
+}
+
+/* ===== CARDS ===== */
+.card {
+    background-color: #111111;
+    border: 1px solid #222222;
+    border-radius: 16px;
+}
+
+/* ===== METRICS ===== */
+[data-testid="stMetric"] {
+    background-color: #111111 !important;
+    border: 1px solid #222222 !important;
+    border-radius: 16px !important;
+}
+
+/* ===== BOTONES ===== */
+button[kind="secondary"] {
+    background-color: #FFFFFF !important;
+    color: #000000 !important;
+    border-radius: 12px !important;
+    font-weight: 600 !important;
+    border: none !important;
+    transition: 0.2s;
+}
+
+button[kind="secondary"]:hover {
+    background-color: #EAEAEA !important;
+}
+
+/* ===== SCROLL ===== */
+::-webkit-scrollbar {
+    width: 5px;
+}
+::-webkit-scrollbar-thumb {
+    background: #333;
+    border-radius: 10px;
+}
+
 </style>
 """, unsafe_allow_html=True)
 # =========================
