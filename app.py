@@ -162,9 +162,7 @@ with open(archivo, encoding="utf-8") as f:
 # =========================
 # 🔍 BUSCADOR
 # =========================
-st.markdown("## Buscar")
-
-cliente_input = st.text_input("Nombre de clienta")
+cliente_input = st.text_input("Buscar clienta")
 
 cliente_seleccionada = None
 
@@ -174,7 +172,8 @@ if cliente_input:
 
     coincidencias = [c for c in clientes if cliente_input.lower() in c.lower()]
 
-    st.markdown("### Resultados")
+    # 🔥 LIMITAMOS RESULTADOS (CLAVE)
+    coincidencias = coincidencias[:5]
 
     for c in coincidencias:
 
@@ -185,9 +184,8 @@ if cliente_input:
             key=lambda x: datetime.strptime(x["Fecha"], "%d/%m/%Y")
         )["Fecha"]
 
-        if st.button(f"{c} • Última visita: {ultima_fecha}"):
+        if st.button(f"{c} • {ultima_fecha}"):
             cliente_seleccionada = c
-
 # =========================
 # PERFIL CLIENTA
 # =========================
