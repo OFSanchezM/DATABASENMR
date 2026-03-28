@@ -5,7 +5,7 @@ from datetime import datetime
 st.set_page_config(page_title="NOMASRIMEL", layout="centered")
 
 # =========================
-# 🎨 ESTILO MINIMALISTA
+# 🎨 ESTILO
 # =========================
 st.markdown("""
 <style>
@@ -18,8 +18,7 @@ html, body, p, span, label {
     font-family: -apple-system, BlinkMacSystemFont, sans-serif;
 }
 
-/* Inputs */
-input, textarea {
+input {
     background-color: #FFFFFF !important;
     color: #000000 !important;
     border-radius: 12px !important;
@@ -54,53 +53,46 @@ li[role="option"] {
     font-size: 18px;
     font-weight: 600;
 }
-
-/* Títulos */
-h1 {
-    text-align: center;
-    font-size: 32px;
-}
 </style>
 """, unsafe_allow_html=True)
 
 # =========================
-# 📂 CARGA DE DATOS (ROBUSTA)
+# 📂 CARGA ROBUSTA (SIN ROMPER)
 # =========================
 @st.cache_data
 def cargar_datos():
     archivo = "facturas_salon.csv"
+    datos = []
 
     try:
-        df = pd.read_csv(
-            archivo,
-            sep=",",
-            engine="python",
-            on_bad_lines="skip"
-        )
+        with open(archivo, encoding="utf-8") as f:
+            for linea in f:
+                partes = linea.strip().split(",")
+
+                # evita líneas rotas
+                if len(partes) < 6:
+                    continue
+
+                try:
+                    datos.append({
+                        "Fecha": partes[1].strip(),
+                        "Cliente": partes[2].strip(),
+                        "Servicio": partes[3].strip(),
+                        "Precio": float(partes[4]),
+                        "Profesional": partes[5].strip(),
+                    })
+                except:
+                    continue
     except:
         return []
 
-    df.columns = df.columns.str.strip()
-
-    columnas = ["Fecha", "Cliente", "Servicio", "Precio", "Profesional"]
-
-    for col in columnas:
-        if col not in df.columns:
-            df[col] = ""
-
-    # LIMPIEZA
-    df["Cliente"] = df["Cliente"].astype(str).str.strip()
-    df["Servicio"] = df["Servicio"].astype(str).str.strip()
-    df["Profesional"] = df["Profesional"].astype(str).str.strip()
-    df["Precio"] = pd.to_numeric(df["Precio"], errors="coerce").fillna(0)
-
-    return df.to_dict(orient="records")
+    return datos
 
 
 datos = cargar_datos()
 
 # =========================
-# 🔄 BOTÓN REFRESH
+# 🔄 BOTÓN ACTUALIZAR
 # =========================
 if st.button("🔄 Actualizar"):
     st.cache_data.clear()
@@ -111,40 +103,49 @@ if st.button("🔄 Actualizar"):
 # =========================
 st.title("NOMASRIMEL")
 
-nombre_busqueda = st.text_input("Nombre de cliente")
+nombre = st.text_input("Buscar clienta")
 
 # =========================
-# 👤 LISTA CLIENTES
+# 👤 CLIENTES
 # =========================
 clientes = sorted(list(set([
-    d["Cliente"]
-    for d in datos
-    if d.get("Cliente")
+    d["Cliente"] for d in datos if d.get("Cliente")
 ])))
 
 # filtro por búsqueda
-if nombre_busqueda:
-    clientes = [c for c in clientes if nombre_busqueda.lower() in c.lower()]
+if nombre:
+    clientes = [c for c in clientes if nombre.lower() in c.lower()]
 
 cliente = st.selectbox("Seleccionar clienta", clientes)
 
 # =========================
-# 📊 PERFIL CLIENTA
+# 📊 PERFIL CLIENTA (ULTRA FIX)
 # =========================
 if cliente:
 
-    historial = [d for d in datos if d["Cliente"] == cliente]
+    historial = [
+        d for d in datos
+        if str(d.get("Cliente", "")).strip().lower() == cliente.strip().lower()
+    ]
 
-    # ordenar por fecha DESC
+    if not historial:
+        st.warning("No hay historial para esta clienta")
+        st.stop()
+
+    # =========================
+    # 📅 FECHA ROBUSTA
+    # =========================
     def parse_fecha(f):
         try:
-            return datetime.strptime(f, "%d/%m/%Y")
+            return datetime.strptime(str(f), "%d/%m/%Y")
         except:
             return datetime.min
 
     historial.sort(key=lambda x: parse_fecha(x["Fecha"]), reverse=True)
 
-    # total gastado
+    # =========================
+    # 💰 TOTAL
+    # =========================
     total = sum(d["Precio"] for d in historial)
 
     st.markdown(f"## 👩 {cliente}")
@@ -153,14 +154,13 @@ if cliente:
     # =========================
     # ⚠️ ALERTA SERVICE
     # =========================
-    if historial:
-        ultima_fecha = parse_fecha(historial[0]["Fecha"])
-        dias = (datetime.now() - ultima_fecha).days
+    ultima_fecha = parse_fecha(historial[0]["Fecha"])
+    dias = (datetime.now() - ultima_fecha).days
 
-        if dias > 21:
-            st.warning(f"No vino hace {dias} días")
-        else:
-            st.success("Clienta activa")
+    if dias > 21:
+        st.warning(f"No vino hace {dias} días")
+    else:
+        st.success("Clienta activa")
 
     st.markdown("## Historial")
 
@@ -171,16 +171,20 @@ if cliente:
 
     for d in historial:
         fecha = d["Fecha"]
+
         if fecha not in fechas:
             fechas[fecha] = []
+
         fechas[fecha].append(d)
 
-    # mostrar
-    for fecha, items in fechas.items():
+    # =========================
+    # 🧾 MOSTRAR
+    # =========================
+    for fecha in fechas:
 
         st.markdown(f"### 📅 {fecha}")
 
-        for item in items:
+        for item in fechas[fecha]:
             st.markdown(f"""
             <div class="card">
                 <div>{item['Servicio']}</div>
