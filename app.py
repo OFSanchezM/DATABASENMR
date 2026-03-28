@@ -11,108 +11,146 @@ st.set_page_config(page_title="NOMASRIMEL", layout="wide")
 st.markdown("""
 <style>
 
-/* Fuente */
+/* Fuente limpia */
 html, body, [class*="css"] {
-    font-family: Avenir, Helvetica, Arial, sans-serif;
+    font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", Arial, sans-serif;
 }
 
-/* Fondo */
+/* Fondo total */
 [data-testid="stAppViewContainer"] {
-    background-color: #EEEBE2;
+    background-color: #F7F7F7;
 }
 
-/* Contenedor */
+/* Contenedor central */
 section.main > div {
-    background-color: #E5EBE6;
+    background-color: #FFFFFF;
     padding: 25px;
     border-radius: 20px;
 }
 
+/* Logo centrado */
+img {
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+}
+
 /* Títulos */
 h1 {
-    font-size: 34px;
+    font-size: 30px;
     font-weight: 600;
-    color: #000;
+    color: #111;
     text-align: center;
 }
 
 h2 {
-    font-size: 26px;
+    font-size: 22px;
     font-weight: 600;
-    color: #000;
+    color: #111;
 }
 
 h3 {
-    font-size: 20px;
-    color: #000;
+    font-size: 18px;
+    color: #444;
 }
 
 /* Inputs */
 input {
-    background-color: #FFFFFF !important;
-    border-radius: 18px !important;
-    border: 1px solid #ddd !important;
+    background-color: #FAFAFA !important;
+    border-radius: 14px !important;
+    border: 1px solid #E0E0E0 !important;
     padding: 14px !important;
     font-size: 16px !important;
-    color: #000 !important;
+    color: #111 !important;
 }
 
-/* Cards */
+/* Select / inputs internos */
+div[data-baseweb="input"] input {
+    color: #111 !important;
+}
+
+/* Botones (resultados clientas) */
+button {
+    width: 100%;
+    border-radius: 14px !important;
+    border: 1px solid #E5E5E5 !important;
+    background-color: #FFFFFF !important;
+    color: #111 !important;
+    padding: 12px !important;
+    margin-bottom: 6px !important;
+    text-align: left !important;
+    font-size: 15px !important;
+}
+
+/* Hover ultra suave */
+button:hover {
+    background-color: #F2F2F2 !important;
+}
+
+/* Cards historial */
 .card {
     background: #FFFFFF;
-    padding: 20px;
-    border-radius: 20px;
-    margin-bottom: 12px;
-    border: 1px solid #eee;
-    box-shadow: 0px 4px 12px rgba(0,0,0,0.04);
+    padding: 18px;
+    border-radius: 18px;
+    margin-bottom: 10px;
+    border: 1px solid #EAEAEA;
 }
 
 /* Servicio */
 .title {
-    font-size: 18px;
-    font-weight: 600;
+    font-size: 16px;
+    font-weight: 500;
+    color: #111;
 }
 
-/* Info secundaria */
+/* Profesional */
 .small {
-    color: #666;
-    font-size: 14px;
+    color: #777;
+    font-size: 13px;
 }
 
 /* Precio */
 .price {
-    font-size: 20px;
-    font-weight: bold;
-    color: #0000FF;
+    font-size: 17px;
+    font-weight: 600;
+    color: #000;
 }
 
-/* Highlight */
+/* Última visita */
 .highlight {
-    background-color: #A4EAC0;
+    background-color: #EFEFEF;
     padding: 4px 10px;
+    border-radius: 8px;
+    font-size: 12px;
+    color: #444;
+}
+
+/* Métrica */
+[data-testid="stMetric"] {
+    background-color: #FAFAFA;
+    padding: 15px;
+    border-radius: 16px;
+    border: 1px solid #EAEAEA;
+}
+
+/* Alertas suaves */
+[data-testid="stAlert"] {
+    border-radius: 14px;
+    border: 1px solid #EAEAEA;
+}
+
+/* Scroll limpio */
+::-webkit-scrollbar {
+    width: 6px;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #DDD;
     border-radius: 10px;
-    font-size: 13px;
-}
-
-/* Botones */
-button {
-    width: 100%;
-    border-radius: 16px !important;
-    border: 1px solid #ddd !important;
-    background-color: #FFFFFF !important;
-    color: #000 !important;
-    padding: 10px !important;
-    margin-bottom: 6px !important;
-    text-align: left !important;
-}
-
-button:hover {
-    background-color: #A4EAC0 !important;
 }
 
 </style>
 """, unsafe_allow_html=True)
-
 # =========================
 # 💎 LOGO CENTRADO
 # =========================
