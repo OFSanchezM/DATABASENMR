@@ -6,128 +6,137 @@ from PIL import Image
 st.set_page_config(page_title="NOMASRIMEL", layout="wide")
 
 # =========================
-# 🎨 ESTILOS NOMASRIMEL
+# 🎨 ESTILO MINIMAL
 # =========================
 st.markdown("""
 <style>
-    /* 1. Reset y Tipografía */
-    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap');
 
-    html, body, [class*="css"] {
-        font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-        color: #1A1A1A;
-    }
+/* Fuente */
+html, body, [class*="css"] {
+    font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", Arial, sans-serif;
+}
 
-    /* 2. Fondo y Contenedor Principal */
-    [data-testid="stAppViewContainer"] {
-        background-color: #FBFBFB; /* Un blanco roto más sutil */
-    }
+/* Fondo */
+[data-testid="stAppViewContainer"] {
+    background-color: #F7F7F7;
+}
 
-    /* Eliminar el header de Streamlit para más limpieza */
-    [data-testid="stHeader"] {
-        background: rgba(0,0,0,0);
-    }
+/* Contenedor */
+section.main > div {
+    background-color: #FFFFFF;
+    padding: 25px;
+    border-radius: 20px;
+}
 
-    section.main > div {
-        max-width: 800px; /* Limitar ancho para lectura cómoda */
-        padding: 40px 20px;
-    }
+/* Logo centrado */
+img {
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+}
 
-    /* 3. Títulos Minimalistas */
-    h1 {
-        font-size: 2rem !important;
-        font-weight: 700 !important;
-        letter-spacing: -0.02em;
-        margin-bottom: 1.5rem !important;
-        color: #000000;
-    }
+/* Títulos */
+h1 {
+    font-size: 30px;
+    font-weight: 600;
+    color: #111;
+    text-align: center;
+}
 
-    h2 {
-        font-size: 1.4rem !important;
-        font-weight: 600 !important;
-        margin-top: 2rem !important;
-    }
+h2 {
+    font-size: 24px;
+    font-weight: 600;
+    color: #111;
+}
 
-    /* 4. Inputs Estilo "Soft" */
-    div[data-baseweb="input"], div[data-baseweb="select"] {
-        border-radius: 12px !important;
-        background-color: #FFFFFF !important;
-        border: 1px solid #E5E5E5 !important;
-        transition: all 0.2s ease;
-    }
+h3 {
+    font-size: 18px;
+    color: #444;
+}
 
-    div[data-baseweb="input"]:focus-within {
-        border-color: #000000 !important;
-        box-shadow: 0 0 0 1px #000000 !important;
-    }
+/* Inputs */
+input {
+    background-color: #FAFAFA !important;
+    border-radius: 14px !important;
+    border: 1px solid #E0E0E0 !important;
+    padding: 14px !important;
+    font-size: 16px !important;
+    color: #111 !important;
+}
 
-    /* 5. Botones Elegantes */
-    button[kind="secondary"] {
-        width: 100%;
-        border-radius: 12px !important;
-        border: 1px solid #E5E5E5 !important;
-        background-color: #FFFFFF !important;
-        padding: 10px 20px !important;
-        transition: all 0.3s ease !important;
-        font-weight: 500 !important;
-        color: #1A1A1A !important;
-    }
+/* Selectbox */
+div[data-baseweb="select"] > div {
+    border-radius: 16px !important;
+    border: 1px solid #E5E5E5 !important;
+    background-color: #FFFFFF !important;
+    min-height: 52px !important;
+    display: flex !important;
+    align-items: center !important;
+    padding-left: 12px !important;
+}
 
-    button[kind="secondary"]:hover {
-        border-color: #1A1A1A !important;
-        background-color: #F9F9F9 !important;
-        transform: translateY(-1px);
-    }
+div[data-baseweb="select"] span {
+    color: #111 !important;
+    font-size: 15px !important;
+}
 
-    /* Botón Primario (si usas st.button normal) */
-    button[kind="primary"] {
-        border-radius: 12px !important;
-        background-color: #000000 !important;
-        border: none !important;
-    }
+/* Cards */
+.card {
+    background: #FFFFFF;
+    padding: 18px;
+    border-radius: 18px;
+    margin-bottom: 10px;
+    border: 1px solid #EAEAEA;
+}
 
-    /* 6. Cards y Métricas (Sin bordes pesados) */
-    .card, [data-testid="stMetric"] {
-        background: #FFFFFF;
-        padding: 20px;
-        border-radius: 16px;
-        border: 1px solid #F0F0F0;
-        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.02), 0 2px 4px -1px rgba(0, 0, 0, 0.01);
-        margin-bottom: 15px;
-    }
+/* Servicio */
+.title {
+    font-size: 16px;
+    font-weight: 500;
+    color: #111;
+}
 
-    /* 7. Detalles de Micro-interacción */
-    .highlight {
-        background-color: #F0F2F6;
-        padding: 4px 10px;
-        border-radius: 6px;
-        font-size: 0.75rem;
-        font-weight: 500;
-        text-transform: uppercase;
-        letter-spacing: 0.05em;
-    }
+/* Profesional */
+.small {
+    color: #777;
+    font-size: 13px;
+}
 
-    .price {
-        font-size: 1.2rem;
-        font-weight: 600;
-        color: #1A1A1A;
-    }
+/* Precio */
+.price {
+    font-size: 17px;
+    font-weight: 600;
+    color: #000;
+}
 
-    /* 8. Scrollbar Invisible/Minimal */
-    ::-webkit-scrollbar {
-        width: 4px;
-    }
-    ::-webkit-scrollbar-track {
-        background: transparent;
-    }
-    ::-webkit-scrollbar-thumb {
-        background: #E0E0E0;
-        border-radius: 10px;
-    }
+/* Última visita */
+.highlight {
+    background-color: #EFEFEF;
+    padding: 4px 10px;
+    border-radius: 8px;
+    font-size: 12px;
+    color: #444;
+}
+
+/* Métrica */
+[data-testid="stMetric"] {
+    background-color: #FAFAFA;
+    padding: 15px;
+    border-radius: 16px;
+    border: 1px solid #EAEAEA;
+}
+
+/* Alertas */
+[data-testid="stAlert"] {
+    border-radius: 14px;
+    border: 1px solid #EAEAEA;
+}
+
 </style>
 """, unsafe_allow_html=True)
+
 # =========================
-# 💎 LOGO CENTRADO
+# 💎 LOGO
 # =========================
 try:
     logo = Image.open("logo.png")
@@ -160,33 +169,24 @@ with open(archivo, encoding="utf-8") as f:
             continue
 
 # =========================
-# 🔍 BUSCADOR
+# 🔍 BUSCADOR + SELECT
 # =========================
-cliente_input = st.text_input("Buscar clienta")
+st.markdown("## Buscar")
 
-cliente_seleccionada = None
+cliente_input = st.text_input("Nombre de clienta")
 
 clientes = sorted(list(set(d["Cliente"] for d in datos)))
 
 if cliente_input:
+    clientes_filtrados = [c for c in clientes if cliente_input.lower() in c.lower()]
+else:
+    clientes_filtrados = clientes
 
-    coincidencias = [c for c in clientes if cliente_input.lower() in c.lower()]
+cliente_seleccionada = st.selectbox(
+    "Seleccionar clienta",
+    clientes_filtrados
+)
 
-    if coincidencias:
-
-        with st.expander(f"Resultados ({len(coincidencias)})", expanded=False):
-
-            for c in coincidencias:
-
-                historial_c = [d for d in datos if d["Cliente"] == c]
-
-                ultima_fecha = max(
-                    historial_c,
-                    key=lambda x: datetime.strptime(x["Fecha"], "%d/%m/%Y")
-                )["Fecha"]
-
-                if st.button(f"{c} • {ultima_fecha}", key=c):
-                    cliente_seleccionada = c
 # =========================
 # PERFIL CLIENTA
 # =========================
@@ -197,7 +197,7 @@ if cliente_seleccionada:
 
     historial = [d for d in datos if d["Cliente"] == cliente_seleccionada]
 
-    # Ordenar fechas
+    # Agrupar por fecha
     agrupado = defaultdict(list)
 
     for h in historial:
@@ -209,13 +209,11 @@ if cliente_seleccionada:
         reverse=True
     )
 
-    # Total gastado
+    # Total
     total = sum(h["Precio"] for h in historial)
     st.metric("Total gastado", f"${total:,.0f}")
 
-    # =========================
-    # 🚨 ALERTA SERVICE
-    # =========================
+    # ALERTA SERVICE
     ultima_fecha = fechas_ordenadas[0]
     fecha_dt = datetime.strptime(ultima_fecha, "%d/%m/%Y")
     hoy = datetime.today()
@@ -229,9 +227,7 @@ if cliente_seleccionada:
     else:
         st.success("✔️ Clienta activa")
 
-    # =========================
     # HISTORIAL
-    # =========================
     st.markdown("## Historial")
 
     for i, fecha in enumerate(fechas_ordenadas):
