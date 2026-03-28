@@ -103,28 +103,47 @@ li[role="option"] {
 # -------------------------
 def cargar_datos():
     try:
-        df = pd.read_csv("facturas_salon.csv", encoding="utf-8", on_bad_lines="skip")
+        df = pd.read_csv(
+            "facturas_salon.csv",
+            encoding="utf-8",
+            sep=",",
+            engine="python",
+            on_bad_lines="skip"
+        )
 
+        # limpiar nombres de columnas
         df.columns = df.columns.str.strip()
 
-        df["Precio"] = pd.to_numeric(df["Precio"], errors="coerce")
-        df["Fecha"] = pd.to_datetime(df["Fecha"], dayfirst=True, errors="coerce")
+        # asegurar columnas
+        columnas_necesarias = ["Fecha", "Cliente", "Servicio", "Precio", "Profesional"]
+        for col in columnas_necesarias:
+            if col not in df.columns:
+                st.error(f"Falta la columna: {col}")
+                return pd.DataFrame()
 
-        df = df.dropna(subset=["Cliente"])
+        # limpiar datos
+        df["Cliente"] = df["Cliente"].astype(str).str.strip()
+        df["Servicio"] = df["Servicio"].astype(str).str.strip()
+        df["Profesional"] = df["Profesional"].astype(str).str.strip()
+
+        # precios
+        df["Precio"] = pd.to_numeric(df["Precio"], errors="coerce")
+
+        # fechas (MUY IMPORTANTE)
+        df["Fecha"] = pd.to_datetime(
+            df["Fecha"],
+            dayfirst=True,
+            errors="coerce"
+        )
+
+        # eliminar filas rotas
+        df = df.dropna(subset=["Cliente", "Fecha", "Precio"])
 
         return df
 
     except Exception as e:
         st.error(f"Error leyendo archivo: {e}")
         return pd.DataFrame()
-
-
-# 🔥 IMPORTANTE (ACA ESTABA EL ERROR)
-df = cargar_datos()
-
-if df.empty:
-    st.warning("No hay datos cargados")
-    st.stop()
 
 
 # -------------------------
