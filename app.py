@@ -11,128 +11,56 @@ st.set_page_config(page_title="NOMASRIMEL", layout="wide")
 st.markdown("""
 <style>
 
-/* Fuente */
-html, body, [class*="css"] {
-    font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", Arial, sans-serif;
-}
-
-/* Fondo general NEGRO SUAVE (no negro puro) */
-[data-testid="stAppViewContainer"] {
-    background-color: #0E0E0E;
-}
-
-/* Contenedor (tarjeta principal) */
-section.main > div {
-    background-color: #FFFFFF;
-    padding: 25px;
-    border-radius: 24px;
-    max-width: 900px;
-    margin: auto;
-}
-
-/* Logo centrado */
-img {
-    display: block;
-    margin-left: auto;
-    margin-right: auto;
-}
-
-/* Títulos */
-h1 {
-    font-size: 30px;
-    font-weight: 600;
-    color: #111;
-    text-align: center;
-}
-
-h2 {
-    font-size: 24px;
-    font-weight: 600;
-    color: #111;
-}
-
-h3 {
-    font-size: 18px;
-    color: #444;
-}
-
-/* Inputs */
-input {
-    background-color: #FAFAFA !important;
-    border-radius: 14px !important;
-    border: 1px solid #E0E0E0 !important;
-    padding: 14px !important;
-    font-size: 16px !important;
+/* 🔥 TEXTO INPUT (lo que escribís) */
+input, textarea {
     color: #111 !important;
 }
 
-/* Selectbox */
-div[data-baseweb="select"] > div {
-    border-radius: 16px !important;
-    border: 1px solid #E5E5E5 !important;
-    background-color: #FFFFFF !important;
-    min-height: 52px !important;
-    display: flex !important;
-    align-items: center !important;
-    padding-left: 12px !important;
+/* 🔥 PLACEHOLDER (texto gris claro) */
+input::placeholder {
+    color: #999 !important;
 }
 
-/* Texto select */
+/* 🔥 LABELS (Nombre, Profesional, etc) */
+label {
+    color: #DDD !important;
+}
+
+/* 🔥 SELECTBOX TEXTO (soluciona lo blanco) */
 div[data-baseweb="select"] span {
     color: #111 !important;
-    font-size: 15px !important;
 }
 
-/* Cards */
-.card {
-    background: #FFFFFF;
-    padding: 18px;
-    border-radius: 18px;
-    margin-bottom: 10px;
-    border: 1px solid #EAEAEA;
+/* 🔥 SELECTBOX DROPDOWN */
+ul {
+    color: #111 !important;
 }
 
-/* Servicio */
-.title {
-    font-size: 16px;
-    font-weight: 500;
+/* 🔥 OPCIONES DEL SELECT */
+li {
+    color: #111 !important;
+}
+
+/* 🔥 SLIDER TEXTO */
+[data-testid="stSlider"] * {
+    color: #111 !important;
+}
+
+/* 🔥 FONDO SLIDER */
+[data-testid="stSlider"] {
+    background-color: #FAFAFA !important;
+    border-radius: 14px;
+    padding: 10px;
+}
+
+/* 🔥 TEXTO GENERAL SOBRE FONDO NEGRO */
+p, span, div {
     color: #111;
 }
 
-/* Profesional */
-.small {
-    color: #777;
-    font-size: 13px;
-}
-
-/* Precio */
-.price {
-    font-size: 17px;
-    font-weight: 600;
-    color: #000;
-}
-
-/* Highlight */
-.highlight {
-    background-color: #F0F0F0;
-    padding: 4px 10px;
-    border-radius: 8px;
-    font-size: 12px;
-    color: #444;
-}
-
-/* Métrica */
-[data-testid="stMetric"] {
-    background-color: #FAFAFA;
-    padding: 15px;
-    border-radius: 16px;
-    border: 1px solid #EAEAEA;
-}
-
-/* Alertas */
-[data-testid="stAlert"] {
-    border-radius: 14px;
-    border: 1px solid #EAEAEA;
+/* 🔥 PERO LABELS EXTERNOS EN CLARO */
+.css-1cpxqw2, .css-1y4p8pa {
+    color: #DDD !important;
 }
 
 </style>
