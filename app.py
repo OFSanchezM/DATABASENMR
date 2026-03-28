@@ -59,6 +59,7 @@ st.markdown("""
     /* El menú que se despliega */
     ul[role="listbox"] {
         background-color: #FFFFFF !important;
+            color: #000;
     }
     
     li[role="option"] {
