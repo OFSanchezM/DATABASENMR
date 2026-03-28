@@ -3,6 +3,8 @@ from collections import defaultdict
 from datetime import datetime
 from PIL import Image
 
+st.set_page_config(page_title="NOMASRIMEL", layout="wide")
+
 # =========================
 # 🎨 ESTILOS NOMASRIMEL
 # =========================
@@ -14,54 +16,50 @@ html, body, [class*="css"] {
     font-family: Avenir, Helvetica, Arial, sans-serif;
 }
 
-/* Fondo suave */
+/* Fondo */
 [data-testid="stAppViewContainer"] {
-    background-color: #0000ff;
+    background-color: #EEEBE2;
 }
 
 /* Contenedor */
 section.main > div {
-    background-color: #EEEBE2;
+    background-color: #E5EBE6;
     padding: 25px;
     border-radius: 20px;
 }
 
-/* Títulos más grandes */
+/* Títulos */
 h1 {
     font-size: 34px;
     font-weight: 600;
-    color: #000000;
+    color: #000;
     text-align: center;
+}
+
+h2 {
+    font-size: 26px;
+    font-weight: 600;
+    color: #000;
 }
 
 h3 {
     font-size: 20px;
-    color: #000000;
+    color: #000;
 }
 
 /* Inputs */
 input {
-  background-color: #FFFFFF !important;
+    background-color: #FFFFFF !important;
     border-radius: 18px !important;
     border: 1px solid #ddd !important;
     padding: 14px !important;
     font-size: 16px !important;
-    color: #000000 !important;   /* 🔥 ESTO ES LO IMPORTANTE */
-}
-
-/* Select (ESTO ES CLAVE 🔥) */
-div[data-baseweb="select"] > div {
-    border-radius: 18px !important;
-    border: 1px solid #ddd !important;
-    background-color: #FFFFFF !important;
-    font-size: 16px !important;
-    padding: 6px !important;
-    color: #000;
+    color: #000 !important;
 }
 
 /* Cards */
 .card {
-    background: #EEEBE2;
+    background: #FFFFFF;
     padding: 20px;
     border-radius: 20px;
     margin-bottom: 12px;
@@ -73,10 +71,9 @@ div[data-baseweb="select"] > div {
 .title {
     font-size: 18px;
     font-weight: 600;
-    color: #000000;
 }
 
-/* Texto secundario */
+/* Info secundaria */
 .small {
     color: #666;
     font-size: 14px;
@@ -97,21 +94,36 @@ div[data-baseweb="select"] > div {
     font-size: 13px;
 }
 
+/* Botones */
+button {
+    width: 100%;
+    border-radius: 16px !important;
+    border: 1px solid #ddd !important;
+    background-color: #FFFFFF !important;
+    color: #000 !important;
+    padding: 10px !important;
+    margin-bottom: 6px !important;
+    text-align: left !important;
+}
+
+button:hover {
+    background-color: #A4EAC0 !important;
+}
+
 </style>
 """, unsafe_allow_html=True)
-# =========================
-# 💎 HEADER CON LOGO
-# =========================
-from PIL import Image
-
-logo = Image.open("logo.png")
-
-st.markdown("<div style='text-align:center;'>", unsafe_allow_html=True)
-st.image(logo, width=180)
-st.markdown("</div>", unsafe_allow_html=True)
 
 # =========================
-# 📂 LEER CSV (ANTI-ERRORES)
+# 💎 LOGO CENTRADO
+# =========================
+try:
+    logo = Image.open("logo.png")
+    st.image(logo, width=180)
+except:
+    pass
+
+# =========================
+# 📂 LEER CSV
 # =========================
 archivo = "facturas_salon.csv"
 datos = []
@@ -135,75 +147,81 @@ with open(archivo, encoding="utf-8") as f:
             continue
 
 # =========================
-# 🔍 BUSCADOR LIMPIO
+# 🔍 BUSCADOR
 # =========================
-st.subheader("Buscar")
+st.markdown("## Buscar")
 
-col1, col2, col3 = st.columns(3)
+cliente_input = st.text_input("Nombre de clienta")
 
-with col1:
-    buscar_nombre = st.text_input("Nombre")
+cliente_seleccionada = None
 
-with col2:
-    buscar_prof = st.text_input("Profesional")
+clientes = sorted(list(set(d["Cliente"] for d in datos)))
 
-with col3:
-    buscar_fecha = st.text_input("Fecha")
+if cliente_input:
 
-# =========================
-# FILTRADO
-# =========================
-filtrados = datos
+    coincidencias = [c for c in clientes if cliente_input.lower() in c.lower()]
 
-if buscar_nombre:
-    filtrados = [d for d in filtrados if buscar_nombre.lower() in d["Cliente"].lower()]
+    st.markdown("### Resultados")
 
-if buscar_prof:
-    filtrados = [d for d in filtrados if buscar_prof.lower() in d["Profesional"].lower()]
+    for c in coincidencias:
 
-if buscar_fecha:
-    filtrados = [d for d in filtrados if buscar_fecha in d["Fecha"]]
+        historial_c = [d for d in datos if d["Cliente"] == c]
 
-# =========================
-# SELECCIÓN CLIENTA
-# =========================
-clientes = sorted(list(set(d["Cliente"] for d in filtrados)))
+        ultima_fecha = max(
+            historial_c,
+            key=lambda x: datetime.strptime(x["Fecha"], "%d/%m/%Y")
+        )["Fecha"]
 
-cliente = None
-
-if clientes:
-    cliente = st.selectbox("Seleccionar clienta", clientes)
+        if st.button(f"{c} • Última visita: {ultima_fecha}"):
+            cliente_seleccionada = c
 
 # =========================
 # PERFIL CLIENTA
 # =========================
-if cliente:
+if cliente_seleccionada:
 
     st.markdown("---")
-    st.header(f"👩 {cliente}")
+    st.header(f"👩 {cliente_seleccionada}")
 
-    historial = [d for d in datos if d["Cliente"] == cliente]
+    historial = [d for d in datos if d["Cliente"] == cliente_seleccionada]
 
-    # Agrupar por fecha
+    # Ordenar fechas
     agrupado = defaultdict(list)
 
     for h in historial:
         agrupado[h["Fecha"]].append(h)
 
-    # Ordenar fechas correctamente
     fechas_ordenadas = sorted(
         agrupado.keys(),
         key=lambda x: datetime.strptime(x, "%d/%m/%Y"),
         reverse=True
     )
 
+    # Total gastado
     total = sum(h["Precio"] for h in historial)
-
     st.metric("Total gastado", f"${total:,.0f}")
 
-    st.subheader("Historial")
+    # =========================
+    # 🚨 ALERTA SERVICE
+    # =========================
+    ultima_fecha = fechas_ordenadas[0]
+    fecha_dt = datetime.strptime(ultima_fecha, "%d/%m/%Y")
+    hoy = datetime.today()
 
-    # Mostrar historial
+    dias = (hoy - fecha_dt).days
+
+    if dias >= 21:
+        st.warning(f"⚠️ No vino hace {dias} días")
+    elif dias >= 14:
+        st.info(f"🔔 Próximo service ({dias} días)")
+    else:
+        st.success("✔️ Clienta activa")
+
+    # =========================
+    # HISTORIAL
+    # =========================
+    st.markdown("## Historial")
+
     for i, fecha in enumerate(fechas_ordenadas):
 
         if i == 0:
