@@ -1,233 +1,190 @@
 import streamlit as st
 import pandas as pd
-from collections import defaultdict
 from datetime import datetime
-from PIL import Image
 
-st.set_page_config(page_title="NOMASRIMEL", layout="wide")
+st.set_page_config(page_title="NOMASRIMEL", layout="centered")
 
 # =========================
-# 🎨 CSS CORREGIDO
+# 🎨 ESTILO MINIMALISTA
 # =========================
 st.markdown("""
 <style>
-
-/* Fondo */
-[data-testid="stAppViewContainer"], 
-[data-testid="stHeader"] {
-    background-color: #000000 !important;
+[data-testid="stAppViewContainer"] {
+    background-color: #000000;
 }
 
-/* Tipografía */
-html, body {
+html, body, p, span, label {
+    color: #FFFFFF !important;
     font-family: -apple-system, BlinkMacSystemFont, sans-serif;
 }
 
-/* Textos */
-h1, h2, h3, p {
-    color: #FFFFFF;
-}
-
-label {
-    color: #CCCCCC !important;
-}
-
 /* Inputs */
-div[data-baseweb="input"], 
-textarea, input {
+input, textarea {
     background-color: #FFFFFF !important;
     color: #000000 !important;
-    border-radius: 14px !important;
-    border: none !important;
-}
-
-input::placeholder {
-    color: #666 !important;
+    border-radius: 12px !important;
 }
 
 /* Select */
 div[data-baseweb="select"] > div {
     background-color: #FFFFFF !important;
+    color: #000000 !important;
     border-radius: 14px !important;
 }
 
-div[data-baseweb="select"] span {
-    color: #000000 !important;
-}
-
-div[role="listbox"] {
+/* Dropdown */
+ul[role="listbox"] {
     background-color: #FFFFFF !important;
 }
-
-div[role="option"] {
+li[role="option"] {
     color: #000000 !important;
-}
-
-div[role="option"]:hover {
-    background-color: #F2F2F2 !important;
-}
-
-/* Slider */
-[data-testid="stSlider"] {
-    background-color: #111;
-    padding: 15px;
-    border-radius: 16px;
 }
 
 /* Cards */
 .card {
-    background-color: #111;
+    background: #111111;
+    padding: 15px;
     border-radius: 16px;
-    padding: 16px;
-    margin-bottom: 10px;
+    margin-bottom: 8px;
+    border: 1px solid #222;
 }
 
-/* Texto cards */
-.title { color: white; font-size: 15px; }
-.small { color: #AAA; font-size: 12px; }
-.price { color: white; font-weight: 600; }
-
-/* Métricas */
-[data-testid="stMetric"] {
-    background-color: #111;
-    border-radius: 16px;
-    padding: 12px;
+/* Precio */
+.price {
+    font-size: 18px;
+    font-weight: 600;
 }
 
-/* Scroll */
-::-webkit-scrollbar {
-    width: 5px;
+/* Títulos */
+h1 {
+    text-align: center;
+    font-size: 32px;
 }
-::-webkit-scrollbar-thumb {
-    background: #333;
-}
-
 </style>
 """, unsafe_allow_html=True)
 
 # =========================
-# 💎 LOGO
+# 📂 CARGA DE DATOS (ROBUSTA)
 # =========================
-try:
-    logo = Image.open("logo.png")
-    st.image(logo, width=180)
-except:
-    pass
-
-# =========================
-# 🔄 AUTO UPDATE DATOS
-# =========================
-archivo = "facturas_salon.csv"
-
-@st.cache_data(ttl=60)
+@st.cache_data
 def cargar_datos():
+    archivo = "facturas_salon.csv"
+
     try:
         df = pd.read_csv(
             archivo,
-            engine="python"
+            sep=",",
+            engine="python",
+            on_bad_lines="skip"
         )
-
-        # 🔥 limpiar nombres de columnas
-        df.columns = df.columns.str.strip()
-
-        # 🔥 validar columnas necesarias
-        columnas_necesarias = ["Fecha", "Cliente", "Servicio", "Precio", "Profesional"]
-
-        for col in columnas_necesarias:
-            if col not in df.columns:
-                st.error(f"Falta columna: {col}")
-                return []
-
-        # 🔥 limpiar datos
-        df = df[columnas_necesarias]
-
-        df["Precio"] = pd.to_numeric(df["Precio"], errors="coerce")
-        df = df.dropna(subset=["Cliente", "Fecha"])
-
-        return df.to_dict(orient="records")
-
-    except Exception as e:
-        st.error(f"Error leyendo CSV: {e}")
+    except:
         return []
 
-# Botón manual refresh
+    df.columns = df.columns.str.strip()
+
+    columnas = ["Fecha", "Cliente", "Servicio", "Precio", "Profesional"]
+
+    for col in columnas:
+        if col not in df.columns:
+            df[col] = ""
+
+    # LIMPIEZA
+    df["Cliente"] = df["Cliente"].astype(str).str.strip()
+    df["Servicio"] = df["Servicio"].astype(str).str.strip()
+    df["Profesional"] = df["Profesional"].astype(str).str.strip()
+    df["Precio"] = pd.to_numeric(df["Precio"], errors="coerce").fillna(0)
+
+    return df.to_dict(orient="records")
+
+
+datos = cargar_datos()
+
+# =========================
+# 🔄 BOTÓN REFRESH
+# =========================
 if st.button("🔄 Actualizar"):
     st.cache_data.clear()
+    st.rerun()
 
 # =========================
-# 🔍 BUSCADOR
+# 🔎 BUSCADOR
 # =========================
-st.markdown("## Buscar clienta")
+st.title("NOMASRIMEL")
 
-cliente_input = st.text_input("Nombre")
-
-clientes = sorted(list(set([d["Cliente"] for d in datos])))
-
-if cliente_input:
-    clientes_filtrados = [c for c in clientes if cliente_input.lower() in c.lower()]
-else:
-    clientes_filtrados = clientes
-
-cliente_seleccionada = st.selectbox("Seleccionar", clientes_filtrados)
+nombre_busqueda = st.text_input("Nombre de cliente")
 
 # =========================
-# PERFIL CLIENTA
+# 👤 LISTA CLIENTES
 # =========================
-if cliente_seleccionada:
+clientes = sorted(list(set([
+    d["Cliente"]
+    for d in datos
+    if d.get("Cliente")
+])))
 
-    st.markdown("---")
-    st.header(f"{cliente_seleccionada}")
+# filtro por búsqueda
+if nombre_busqueda:
+    clientes = [c for c in clientes if nombre_busqueda.lower() in c.lower()]
 
-    historial = [d for d in datos if d["Cliente"] == cliente_seleccionada]
+cliente = st.selectbox("Seleccionar clienta", clientes)
 
-    agrupado = defaultdict(list)
+# =========================
+# 📊 PERFIL CLIENTA
+# =========================
+if cliente:
 
-    for h in historial:
-        agrupado[h["Fecha"]].append(h)
+    historial = [d for d in datos if d["Cliente"] == cliente]
 
-    fechas_ordenadas = sorted(
-        agrupado.keys(),
-        key=lambda x: datetime.strptime(x, "%d/%m/%Y"),
-        reverse=True
-    )
+    # ordenar por fecha DESC
+    def parse_fecha(f):
+        try:
+            return datetime.strptime(f, "%d/%m/%Y")
+        except:
+            return datetime.min
 
-    total = sum(float(h["Precio"]) for h in historial)
+    historial.sort(key=lambda x: parse_fecha(x["Fecha"]), reverse=True)
+
+    # total gastado
+    total = sum(d["Precio"] for d in historial)
+
+    st.markdown(f"## 👩 {cliente}")
     st.metric("Total gastado", f"${total:,.0f}")
 
     # =========================
-    # ALERTA SERVICE
+    # ⚠️ ALERTA SERVICE
     # =========================
-    ultima_fecha = fechas_ordenadas[0]
-    fecha_dt = datetime.strptime(ultima_fecha, "%d/%m/%Y")
-    dias = (datetime.today() - fecha_dt).days
+    if historial:
+        ultima_fecha = parse_fecha(historial[0]["Fecha"])
+        dias = (datetime.now() - ultima_fecha).days
 
-    if dias >= 21:
-        st.warning(f"⚠️ No vino hace {dias} días")
-    elif dias >= 14:
-        st.info(f"🔔 Próximo service ({dias} días)")
-    else:
-        st.success("✔️ Clienta activa")
+        if dias > 21:
+            st.warning(f"No vino hace {dias} días")
+        else:
+            st.success("Clienta activa")
 
-    # =========================
-    # HISTORIAL
-    # =========================
     st.markdown("## Historial")
 
-    for fecha in fechas_ordenadas:
+    # =========================
+    # 📅 AGRUPAR POR FECHA
+    # =========================
+    fechas = {}
 
-        st.markdown(f"### {fecha}")
+    for d in historial:
+        fecha = d["Fecha"]
+        if fecha not in fechas:
+            fechas[fecha] = []
+        fechas[fecha].append(d)
 
-        st.markdown("<div class='card'>", unsafe_allow_html=True)
+    # mostrar
+    for fecha, items in fechas.items():
 
-        for item in agrupado[fecha]:
+        st.markdown(f"### 📅 {fecha}")
+
+        for item in items:
             st.markdown(f"""
-            <div style="display:flex;justify-content:space-between;padding:6px 0;">
-                <div>
-                    <div class="title">{item["Servicio"]}</div>
-                    <div class="small">{item["Profesional"]}</div>
-                </div>
-                <div class="price">${float(item["Precio"]):,.0f}</div>
+            <div class="card">
+                <div>{item['Servicio']}</div>
+                <div style="color:#888">{item['Profesional']}</div>
+                <div class="price">${item['Precio']:,.0f}</div>
             </div>
             """, unsafe_allow_html=True)
-
-        st.markdown("</div>", unsafe_allow_html=True)
