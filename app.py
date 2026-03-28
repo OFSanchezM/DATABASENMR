@@ -16,16 +16,18 @@ html, body, [class*="css"] {
     font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", Arial, sans-serif;
 }
 
-/* Fondo */
+/* Fondo general NEGRO SUAVE (no negro puro) */
 [data-testid="stAppViewContainer"] {
-    background-color: #000;
+    background-color: #0E0E0E;
 }
 
-/* Contenedor */
+/* Contenedor (tarjeta principal) */
 section.main > div {
     background-color: #FFFFFF;
     padding: 25px;
-    border-radius: 20px;
+    border-radius: 24px;
+    max-width: 900px;
+    margin: auto;
 }
 
 /* Logo centrado */
@@ -75,8 +77,9 @@ div[data-baseweb="select"] > div {
     padding-left: 12px !important;
 }
 
+/* Texto select */
 div[data-baseweb="select"] span {
-    color: #000 !important;
+    color: #111 !important;
     font-size: 15px !important;
 }
 
@@ -109,9 +112,9 @@ div[data-baseweb="select"] span {
     color: #000;
 }
 
-/* Última visita */
+/* Highlight */
 .highlight {
-    background-color: #EFEFEF;
+    background-color: #F0F0F0;
     padding: 4px 10px;
     border-radius: 8px;
     font-size: 12px;
@@ -134,7 +137,6 @@ div[data-baseweb="select"] span {
 
 </style>
 """, unsafe_allow_html=True)
-
 # =========================
 # 💎 LOGO
 # =========================
