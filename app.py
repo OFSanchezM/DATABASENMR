@@ -39,19 +39,19 @@ img {
 h1 {
     font-size: 30px;
     font-weight: 600;
-    color: #111;
+    color: #000000;
     text-align: center;
 }
 
 h2 {
     font-size: 22px;
     font-weight: 600;
-    color: #111;
+    color: #000000;
 }
 
 h3 {
     font-size: 18px;
-    color: #444;
+    color: #000000;
 }
 
 /* Inputs */
@@ -61,12 +61,12 @@ input {
     border: 1px solid #E0E0E0 !important;
     padding: 14px !important;
     font-size: 16px !important;
-    color: #111 !important;
+    color: #000000 !important;
 }
 
 /* Select / inputs internos */
 div[data-baseweb="input"] input {
-    color: #111 !important;
+    color: #000000 !important;
 }
 
 /* Botones (resultados clientas) */
@@ -100,7 +100,7 @@ button:hover {
 .title {
     font-size: 16px;
     font-weight: 500;
-    color: #111;
+    color: #000;
 }
 
 /* Profesional */
@@ -122,7 +122,7 @@ button:hover {
     padding: 4px 10px;
     border-radius: 8px;
     font-size: 12px;
-    color: #444;
+    color: #000;
 }
 
 /* Métrica */
