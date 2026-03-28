@@ -52,8 +52,6 @@ h1 {
     line-height: 1.1;
 }
 
-h2 { font-size: 22px; font-weight: 700; }
-
 input, textarea {
     background: var(--surface2) !important;
     color: var(--text) !important;
@@ -65,7 +63,7 @@ input, textarea {
     transition: border-color 0.2s ease, box-shadow 0.2s ease !important;
 }
 
-input:focus, textarea:focus {
+input:focus {
     border-color: var(--accent) !important;
     box-shadow: 0 0 0 3px rgba(124,109,250,0.15) !important;
 }
@@ -75,7 +73,6 @@ div[data-baseweb="select"] > div {
     border: 1px solid var(--border) !important;
     border-radius: var(--radius) !important;
     min-height: 52px !important;
-    transition: border-color 0.2s ease !important;
 }
 
 div[data-baseweb="select"] span { color: var(--text) !important; }
@@ -94,24 +91,6 @@ li[role="option"] {
 }
 
 li[role="option"]:hover { background: rgba(124,109,250,0.15) !important; }
-
-.stButton > button {
-    background: linear-gradient(135deg, var(--accent), var(--accent2)) !important;
-    color: #fff !important;
-    border: none !important;
-    border-radius: var(--radius) !important;
-    padding: 12px 26px !important;
-    font-family: 'Syne', sans-serif !important;
-    font-size: 15px !important;
-    font-weight: 700 !important;
-    transition: all 0.2s ease !important;
-    box-shadow: 0 4px 20px rgba(124,109,250,0.3) !important;
-}
-
-.stButton > button:hover {
-    transform: translateY(-2px) !important;
-    box-shadow: 0 8px 30px rgba(124,109,250,0.45) !important;
-}
 
 [data-testid="stMetric"] {
     background: var(--surface) !important;
@@ -166,7 +145,7 @@ hr {
 }
 
 .card:hover {
-    transform: translateY(-5px);
+    transform: translateY(-4px);
     box-shadow: 0 16px 40px rgba(0,0,0,0.5), 0 0 0 1px rgba(124,109,250,0.2);
     border-color: var(--border-h);
 }
@@ -175,15 +154,15 @@ hr {
 
 .fecha-label {
     font-family: 'Syne', sans-serif;
-    font-size: 13px;
+    font-size: 12px;
     font-weight: 600;
     text-transform: uppercase;
     letter-spacing: 0.1em;
     color: var(--muted);
-    margin: 24px 0 10px;
+    margin: 28px 0 10px;
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 10px;
 }
 
 .fecha-label::after {
@@ -191,30 +170,6 @@ hr {
     flex: 1;
     height: 1px;
     background: var(--border);
-}
-
-.servicio-nombre {
-    font-family: 'Syne', sans-serif;
-    font-weight: 700;
-    font-size: 17px;
-    color: var(--text);
-}
-
-.servicio-prof {
-    font-size: 13px;
-    color: var(--muted);
-    margin-top: 4px;
-}
-
-.servicio-precio {
-    font-family: 'Syne', sans-serif;
-    font-weight: 800;
-    font-size: 20px;
-    margin-top: 10px;
-    background: linear-gradient(135deg, #fff, var(--accent));
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
 }
 
 .badge {
@@ -227,7 +182,7 @@ hr {
     font-size: 12px;
     font-weight: 600;
     font-family: 'Syne', sans-serif;
-    margin-top: 4px;
+    margin-top: 6px;
 }
 
 .fade {
@@ -262,15 +217,26 @@ def cargar_datos():
             engine="python"
         )
 
+        # Limpiar nombres de columnas
         df.columns = df.columns.str.strip()
 
-        # Parsear fecha de forma flexible (acepta dd/mm/yyyy, yyyy-mm-dd, etc.)
+        # Columnas reales: Fecha,Cliente,Servicio,Precio,Profesional,Comisión,Reagendo,ProximoTurno
+
+        # Parsear fecha formato DD/MM/YYYY
         df["Fecha"] = pd.to_datetime(df["Fecha"], dayfirst=True, errors="coerce")
 
         df["Cliente"]     = df["Cliente"].astype(str).str.strip()
         df["Servicio"]    = df["Servicio"].astype(str).str.strip()
         df["Profesional"] = df["Profesional"].astype(str).str.strip()
-        df["Precio"]      = pd.to_numeric(df["Precio"], errors="coerce").fillna(0)
+
+        # Limpiar precio
+        df["Precio"] = (
+            df["Precio"]
+            .astype(str)
+            .str.replace(",", "", regex=False)
+            .str.strip()
+        )
+        df["Precio"] = pd.to_numeric(df["Precio"], errors="coerce").fillna(0)
 
         # Filtrar clientes inválidos
         df = df[
@@ -280,13 +246,13 @@ def cargar_datos():
             (df["Cliente"].str.lower() != "no name")
         ]
 
-        # ✅ FIX: eliminar filas con fecha inválida (NaT)
+        # Eliminar fechas inválidas
         df = df[df["Fecha"].notna()]
 
         return df
 
     except Exception as e:
-        st.error(f"Error leyendo CSV: {e}")
+        st.error(f"❌ Error leyendo CSV: {e}")
         return pd.DataFrame()
 
 
@@ -296,12 +262,12 @@ def cargar_datos():
 df = cargar_datos()
 
 if df.empty:
-    st.warning("⚠ No hay datos o el archivo está mal configurado.")
+    st.warning("⚠ No hay datos cargados. Revisá el archivo facturas_salon.csv")
     st.stop()
 
 # Header
 st.markdown("# NOMASRIMEL")
-st.markdown('<p style="color:#6b6b80; font-size:15px; margin-top:-12px;">Sistema de clientas</p>', unsafe_allow_html=True)
+st.markdown('<p style="color:#6b6b80;font-size:15px;margin-top:-10px;">Sistema de clientas</p>', unsafe_allow_html=True)
 st.markdown("---")
 
 # Buscador
@@ -313,31 +279,26 @@ if busqueda:
 
 cliente = st.selectbox("Seleccionar clienta", [""] + clientes_lista)
 
-# ─── Perfil de clienta ───
+# ─── Perfil ───
 if cliente:
-    df_cliente = (
-        df[df["Cliente"] == cliente]
-        .copy()
-        .sort_values("Fecha", ascending=False)
-    )
+    df_cliente = df[df["Cliente"] == cliente].copy().sort_values("Fecha", ascending=False)
 
     st.markdown("---")
     st.markdown(f"## {cliente}")
 
-    # Métricas
     total       = df_cliente["Precio"].sum()
     visitas     = df_cliente["Fecha"].dt.date.nunique()
-    ultima      = df_cliente["Fecha"].max()
     ticket_prom = total / visitas if visitas > 0 else 0
+    ultima      = df_cliente["Fecha"].max()
 
     c1, c2, c3 = st.columns(3)
-    c1.metric("💸 Total gastado",   f"${total:,.0f}")
-    c2.metric("📅 Visitas",          str(visitas))
-    c3.metric("🎯 Ticket promedio",  f"${ticket_prom:,.0f}")
+    c1.metric("💸 Total gastado",  f"${total:,.0f}")
+    c2.metric("📅 Visitas",         str(visitas))
+    c3.metric("🎯 Ticket promedio", f"${ticket_prom:,.0f}")
 
     if pd.notna(ultima):
         st.markdown(
-            f'<p style="color:#6b6b80; font-size:13px; margin-top:6px;">'
+            f'<p style="color:#6b6b80;font-size:13px;margin-top:4px;">'
             f'Última visita: {ultima.strftime("%d/%m/%Y")}</p>',
             unsafe_allow_html=True
         )
@@ -345,33 +306,39 @@ if cliente:
     st.markdown("---")
     st.markdown("### Historial de servicios")
 
-    # ✅ FIX PRINCIPAL: iterar sobre fechas limpias (sin NaT)
     fechas_unicas = sorted(df_cliente["Fecha"].dt.date.unique(), reverse=True)
 
     for fecha in fechas_unicas:
         fecha_str = fecha.strftime("%d/%m/%Y")
-        st.markdown(
-            f'<div class="fecha-label">📅 {fecha_str}</div>',
-            unsafe_allow_html=True
-        )
+        st.markdown(f'<div class="fecha-label">📅 {fecha_str}</div>', unsafe_allow_html=True)
 
         servicios_dia = df_cliente[df_cliente["Fecha"].dt.date == fecha]
 
         for _, row in servicios_dia.iterrows():
+            servicio    = row.get("Servicio", "—")
             profesional = row.get("Profesional", "—")
             precio      = row.get("Precio", 0)
-            servicio    = row.get("Servicio", "—")
 
-            # Badge de reagendó si existe la columna
-            reagendo_badge = ""
-            if "Reagendo" in row and str(row["Reagendo"]).strip().lower() in ("sí", "si", "yes", "true", "1"):
-                reagendo_badge = '<span class="badge">🔁 Reagendó</span>'
+            reagendo_html = ""
+            if str(row.get("Reagendo", "")).strip().lower() in ("sí", "si", "yes", "true", "1"):
+                reagendo_html = '<br><span class="badge">🔁 Reagendó</span>'
+
+            proximo_html = ""
+            proximo_val  = str(row.get("ProximoTurno", "")).strip()
+            if proximo_val and proximo_val.lower() not in ("nan", "", "no", "none"):
+                proximo_html = f'<div style="color:#6b6b80;font-size:12px;margin-top:8px;">📌 Próximo turno: {proximo_val}</div>'
 
             st.markdown(f"""
             <div class="card fade">
-                <div class="servicio-nombre">{servicio}</div>
-                <div class="servicio-prof">👤 {profesional}</div>
-                {reagendo_badge}
-                <div class="servicio-precio">${precio:,.0f}</div>
+                <div style="font-family:'Syne',sans-serif;font-weight:700;font-size:17px;">{servicio}</div>
+                <div style="color:#6b6b80;font-size:13px;margin-top:4px;">👤 {profesional}</div>
+                {reagendo_html}
+                {proximo_html}
+                <div style="font-family:'Syne',sans-serif;font-weight:800;font-size:22px;margin-top:12px;
+                            background:linear-gradient(135deg,#fff,#7c6dfa);
+                            -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+                            background-clip:text;">
+                    ${precio:,.0f}
+                </div>
             </div>
             """, unsafe_allow_html=True)
