@@ -1,344 +1,210 @@
 import streamlit as st
-import pandas as pd
+from collections import defaultdict
+from datetime import datetime
+from PIL import Image
 
-st.set_page_config(page_title="NOMASRIMEL", layout="centered")
+st.set_page_config(page_title="NOMASRIMEL", layout="wide")
 
-# ─────────────────────────────────────────
-# 🎨 UI PREMIUM
-# ─────────────────────────────────────────
+# =========================
+# 🎨 ESTILOS NOMASRIMEL
+# =========================
 st.markdown("""
 <style>
 
-@import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Inter:wght@300;400;500&display=swap');
-
-:root {
-    --bg:       #060608;
-    --surface:  #0e0e12;
-    --surface2: #16161c;
-    --border:   rgba(255,255,255,0.06);
-    --border-h: rgba(255,255,255,0.14);
-    --accent:   #7c6dfa;
-    --accent2:  #e879f9;
-    --text:     #f0f0f6;
-    --muted:    #6b6b80;
-    --radius:   18px;
-}
-
-[data-testid="stAppViewContainer"] {
-    background-color: var(--bg);
-    background-image:
-        radial-gradient(ellipse 80% 50% at 20% -10%, rgba(124,109,250,0.12) 0%, transparent 60%),
-        radial-gradient(ellipse 60% 40% at 80% 110%, rgba(232,121,249,0.08) 0%, transparent 60%);
-    min-height: 100vh;
-}
-
-[data-testid="stHeader"] { background: transparent !important; }
-
+/* Fuente tipo Avenir */
 html, body, [class*="css"] {
-    font-family: 'Inter', sans-serif;
-    color: var(--text);
-    -webkit-font-smoothing: antialiased;
+    font-family: Avenir, Helvetica, Arial, sans-serif;
 }
 
-h1, h2, h3 { font-family: 'Syne', sans-serif; letter-spacing: -0.02em; }
+/* Fondo */
+[data-testid="stAppViewContainer"] {
+    background: linear-gradient(180deg, #EEEBE2, #E5EBE6);
+}
 
+/* Títulos */
 h1 {
-    font-size: 38px;
-    font-weight: 800;
-    background: linear-gradient(135deg, #fff 30%, var(--accent));
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-    line-height: 1.1;
+    font-size: 28px;
+    font-weight: 600;
+    color: #000;
 }
 
-input, textarea {
-    background: var(--surface2) !important;
-    color: var(--text) !important;
-    border: 1px solid var(--border) !important;
-    border-radius: var(--radius) !important;
-    padding: 14px 16px !important;
-    font-size: 15px !important;
-    font-family: 'Inter', sans-serif !important;
-    transition: border-color 0.2s ease, box-shadow 0.2s ease !important;
+h3 {
+    color: #000;
 }
 
-input:focus {
-    border-color: var(--accent) !important;
-    box-shadow: 0 0 0 3px rgba(124,109,250,0.15) !important;
-}
-
-div[data-baseweb="select"] > div {
-    background: var(--surface2) !important;
-    border: 1px solid var(--border) !important;
-    border-radius: var(--radius) !important;
-    min-height: 52px !important;
-}
-
-div[data-baseweb="select"] span { color: var(--text) !important; }
-
-ul[role="listbox"] {
-    background: var(--surface2) !important;
-    border: 1px solid var(--border) !important;
+/* Inputs */
+input {
+    background-color: #FFFFFF !important;
     border-radius: 14px !important;
-    box-shadow: 0 20px 60px rgba(0,0,0,0.6) !important;
+    border: 1px solid #ddd !important;
+    color: #000 !important;
+    padding: 12px !important;
 }
 
-li[role="option"] {
-    color: var(--text) !important;
-    border-radius: 10px !important;
-    margin: 2px 6px !important;
-}
-
-li[role="option"]:hover { background: rgba(124,109,250,0.15) !important; }
-
-[data-testid="stMetric"] {
-    background: var(--surface) !important;
-    border: 1px solid var(--border) !important;
-    border-radius: var(--radius) !important;
-    padding: 20px !important;
-    transition: border-color 0.2s ease !important;
-}
-
-[data-testid="stMetric"]:hover { border-color: rgba(124,109,250,0.3) !important; }
-
-[data-testid="stMetricLabel"] {
-    font-family: 'Syne', sans-serif !important;
-    font-size: 12px !important;
-    font-weight: 600 !important;
-    text-transform: uppercase !important;
-    letter-spacing: 0.08em !important;
-    color: var(--muted) !important;
-}
-
-[data-testid="stMetricValue"] {
-    font-family: 'Syne', sans-serif !important;
-    font-size: 32px !important;
-    font-weight: 800 !important;
-}
-
-hr {
-    border: none !important;
-    border-top: 1px solid var(--border) !important;
-    margin: 24px 0 !important;
-}
-
+/* Cards */
 .card {
-    background: var(--surface);
-    padding: 22px;
-    border-radius: var(--radius);
-    margin-bottom: 14px;
-    border: 1px solid var(--border);
-    transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
-    position: relative;
-    overflow: hidden;
-}
-
-.card::before {
-    content: '';
-    position: absolute;
-    top: 0; left: 0; right: 0;
-    height: 1px;
-    background: linear-gradient(90deg, transparent, rgba(124,109,250,0.4), transparent);
-    opacity: 0;
-    transition: opacity 0.3s ease;
-}
-
-.card:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 16px 40px rgba(0,0,0,0.5), 0 0 0 1px rgba(124,109,250,0.2);
-    border-color: var(--border-h);
-}
-
-.card:hover::before { opacity: 1; }
-
-.fecha-label {
-    font-family: 'Syne', sans-serif;
-    font-size: 12px;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.1em;
-    color: var(--muted);
-    margin: 28px 0 10px;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-}
-
-.fecha-label::after {
-    content: '';
-    flex: 1;
-    height: 1px;
-    background: var(--border);
-}
-
-.badge {
-    display: inline-block;
-    background: rgba(124,109,250,0.15);
-    color: var(--accent);
-    border: 1px solid rgba(124,109,250,0.3);
+    background: #FFFFFF;
+    padding: 20px;
     border-radius: 20px;
-    padding: 3px 12px;
-    font-size: 12px;
+    margin-bottom: 12px;
+    border: 1px solid #eee;
+    box-shadow: 0px 6px 20px rgba(0,0,0,0.05);
+}
+
+/* Servicio */
+.title {
+    font-size: 17px;
     font-weight: 600;
-    font-family: 'Syne', sans-serif;
-    margin-top: 6px;
+    color: #000;
 }
 
-.fade {
-    animation: fadeUp 0.45s cubic-bezier(0.16, 1, 0.3, 1) both;
+/* Info secundaria */
+.small {
+    color: #666;
+    font-size: 12px;
 }
 
-@keyframes fadeUp {
-    from { opacity: 0; transform: translateY(14px); }
-    to   { opacity: 1; transform: translateY(0); }
+/* Precio */
+.price {
+    font-size: 18px;
+    font-weight: bold;
+    color: #0000FF;
 }
 
-::-webkit-scrollbar { width: 5px; }
-::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 10px; }
-::-webkit-scrollbar-thumb:hover { background: rgba(124,109,250,0.4); }
+/* Highlight última visita */
+.highlight {
+    background-color: #A4EAC0;
+    padding: 4px 8px;
+    border-radius: 8px;
+    font-size: 12px;
+}
 
 </style>
 """, unsafe_allow_html=True)
 
+# =========================
+# 💎 HEADER CON LOGO
+# =========================
+col1, col2 = st.columns([1, 4])
 
-# ─────────────────────────────────────────
-# 📂 CARGAR DATOS
-# ─────────────────────────────────────────
-@st.cache_data(ttl=60)
-def cargar_datos():
-    try:
-        df = pd.read_csv(
-            "facturas_salon.csv",
-            encoding="utf-8",
-            sep=",",
-            on_bad_lines="skip",
-            engine="python"
-        )
+try:
+    logo = Image.open("logo.png")
+    with col1:
+        st.image(logo, width=70)
+except:
+    pass
 
-        # Limpiar nombres de columnas
-        df.columns = df.columns.str.strip()
+with col2:
+    st.markdown("<h1>NOMASRIMEL</h1>", unsafe_allow_html=True)
 
-        # Columnas reales: Fecha,Cliente,Servicio,Precio,Profesional,Comisión,Reagendo,ProximoTurno
+# =========================
+# 📂 LEER CSV (ANTI-ERRORES)
+# =========================
+archivo = "facturas_salon.csv"
+datos = []
 
-        # Parsear fecha formato DD/MM/YYYY
-        df["Fecha"] = pd.to_datetime(df["Fecha"], dayfirst=True, errors="coerce")
+with open(archivo, encoding="utf-8") as f:
+    for linea in f:
+        partes = linea.strip().split(",")
 
-        df["Cliente"]     = df["Cliente"].astype(str).str.strip()
-        df["Servicio"]    = df["Servicio"].astype(str).str.strip()
-        df["Profesional"] = df["Profesional"].astype(str).str.strip()
+        if len(partes) < 6:
+            continue
 
-        # Limpiar precio
-        df["Precio"] = (
-            df["Precio"]
-            .astype(str)
-            .str.replace(",", "", regex=False)
-            .str.strip()
-        )
-        df["Precio"] = pd.to_numeric(df["Precio"], errors="coerce").fillna(0)
+        try:
+            datos.append({
+                "Fecha": partes[1],
+                "Cliente": partes[2],
+                "Servicio": partes[3],
+                "Precio": float(partes[4]),
+                "Profesional": partes[5],
+            })
+        except:
+            continue
 
-        # Filtrar clientes inválidos
-        df = df[
-            df["Cliente"].notna() &
-            (df["Cliente"] != "nan") &
-            (df["Cliente"].str.strip() != "") &
-            (df["Cliente"].str.lower() != "no name")
-        ]
+# =========================
+# 🔍 BUSCADOR LIMPIO
+# =========================
+st.subheader("Buscar")
 
-        # Eliminar fechas inválidas
-        df = df[df["Fecha"].notna()]
+col1, col2, col3 = st.columns(3)
 
-        return df
+with col1:
+    buscar_nombre = st.text_input("Nombre")
 
-    except Exception as e:
-        st.error(f"❌ Error leyendo CSV: {e}")
-        return pd.DataFrame()
+with col2:
+    buscar_prof = st.text_input("Profesional")
 
+with col3:
+    buscar_fecha = st.text_input("Fecha")
 
-# ─────────────────────────────────────────
-# 🔥 APP
-# ─────────────────────────────────────────
-df = cargar_datos()
+# =========================
+# FILTRADO
+# =========================
+filtrados = datos
 
-if df.empty:
-    st.warning("⚠ No hay datos cargados. Revisá el archivo facturas_salon.csv")
-    st.stop()
+if buscar_nombre:
+    filtrados = [d for d in filtrados if buscar_nombre.lower() in d["Cliente"].lower()]
 
-# Header
-st.markdown("# NOMASRIMEL")
-st.markdown('<p style="color:#6b6b80;font-size:15px;margin-top:-10px;">Sistema de clientas</p>', unsafe_allow_html=True)
-st.markdown("---")
+if buscar_prof:
+    filtrados = [d for d in filtrados if buscar_prof.lower() in d["Profesional"].lower()]
 
-# Buscador
-busqueda = st.text_input("🔍  Buscar clienta por nombre")
+if buscar_fecha:
+    filtrados = [d for d in filtrados if buscar_fecha in d["Fecha"]]
 
-clientes_lista = sorted(df["Cliente"].unique())
-if busqueda:
-    clientes_lista = [c for c in clientes_lista if busqueda.lower() in c.lower()]
+# =========================
+# SELECCIÓN CLIENTA
+# =========================
+clientes = sorted(list(set(d["Cliente"] for d in filtrados)))
 
-cliente = st.selectbox("Seleccionar clienta", [""] + clientes_lista)
+cliente = None
 
-# ─── Perfil ───
+if clientes:
+    cliente = st.selectbox("Seleccionar clienta", clientes)
+
+# =========================
+# PERFIL CLIENTA
+# =========================
 if cliente:
-    df_cliente = df[df["Cliente"] == cliente].copy().sort_values("Fecha", ascending=False)
 
     st.markdown("---")
-    st.markdown(f"## {cliente}")
+    st.header(f"👩 {cliente}")
 
-    total       = df_cliente["Precio"].sum()
-    visitas     = df_cliente["Fecha"].dt.date.nunique()
-    ticket_prom = total / visitas if visitas > 0 else 0
-    ultima      = df_cliente["Fecha"].max()
+    historial = [d for d in datos if d["Cliente"] == cliente]
 
-    c1, c2, c3 = st.columns(3)
-    c1.metric("💸 Total gastado",  f"${total:,.0f}")
-    c2.metric("📅 Visitas",         str(visitas))
-    c3.metric("🎯 Ticket promedio", f"${ticket_prom:,.0f}")
+    # Agrupar por fecha
+    agrupado = defaultdict(list)
 
-    if pd.notna(ultima):
-        st.markdown(
-            f'<p style="color:#6b6b80;font-size:13px;margin-top:4px;">'
-            f'Última visita: {ultima.strftime("%d/%m/%Y")}</p>',
-            unsafe_allow_html=True
-        )
+    for h in historial:
+        agrupado[h["Fecha"]].append(h)
 
-    st.markdown("---")
-    st.markdown("### Historial de servicios")
+    # Ordenar fechas correctamente
+    fechas_ordenadas = sorted(
+        agrupado.keys(),
+        key=lambda x: datetime.strptime(x, "%d/%m/%Y"),
+        reverse=True
+    )
 
-    fechas_unicas = sorted(df_cliente["Fecha"].dt.date.unique(), reverse=True)
+    total = sum(h["Precio"] for h in historial)
 
-    for fecha in fechas_unicas:
-        fecha_str = fecha.strftime("%d/%m/%Y")
-        st.markdown(f'<div class="fecha-label">📅 {fecha_str}</div>', unsafe_allow_html=True)
+    st.metric("Total gastado", f"${total:,.0f}")
 
-        servicios_dia = df_cliente[df_cliente["Fecha"].dt.date == fecha]
+    st.subheader("Historial")
 
-        for _, row in servicios_dia.iterrows():
-            servicio    = row.get("Servicio", "—")
-            profesional = row.get("Profesional", "—")
-            precio      = row.get("Precio", 0)
+    # Mostrar historial
+    for i, fecha in enumerate(fechas_ordenadas):
 
-            reagendo_html = ""
-            if str(row.get("Reagendo", "")).strip().lower() in ("sí", "si", "yes", "true", "1"):
-                reagendo_html = '<br><span class="badge">🔁 Reagendó</span>'
+        if i == 0:
+            etiqueta = '<span class="highlight">Última visita</span>'
+        else:
+            etiqueta = ''
 
-            proximo_html = ""
-            proximo_val  = str(row.get("ProximoTurno", "")).strip()
-            if proximo_val and proximo_val.lower() not in ("nan", "", "no", "none"):
-                proximo_html = f'<div style="color:#6b6b80;font-size:12px;margin-top:8px;">📌 Próximo turno: {proximo_val}</div>'
+        st.markdown(f"### 📅 {fecha} {etiqueta}", unsafe_allow_html=True)
 
+        for item in agrupado[fecha]:
             st.markdown(f"""
-            <div class="card fade">
-                <div style="font-family:'Syne',sans-serif;font-weight:700;font-size:17px;">{servicio}</div>
-                <div style="color:#6b6b80;font-size:13px;margin-top:4px;">👤 {profesional}</div>
-                {reagendo_html}
-                {proximo_html}
-                <div style="font-family:'Syne',sans-serif;font-weight:800;font-size:22px;margin-top:12px;
-                            background:linear-gradient(135deg,#fff,#7c6dfa);
-                            -webkit-background-clip:text;-webkit-text-fill-color:transparent;
-                            background-clip:text;">
-                    ${precio:,.0f}
-                </div>
+            <div class="card">
+                <div class="title">{item["Servicio"]}</div>
+                <div class="small">{item["Profesional"]}</div>
+                <div class="price">${item["Precio"]:,.0f}</div>
             </div>
             """, unsafe_allow_html=True)
