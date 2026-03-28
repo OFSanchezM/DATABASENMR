@@ -5,77 +5,48 @@ from datetime import datetime
 st.set_page_config(page_title="NOMASRIMEL", layout="centered")
 
 # -------------------------
-# 🎨 ESTILO PREMIUM
+# 🎨 UI PREMIUM
 # -------------------------
 st.markdown("""
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Syne:wght@600;700&family=Inter:wght@300;400;500&display=swap');
-
-:root {
-    --bg: #060608;
-    --card: #111;
-    --border: rgba(255,255,255,0.08);
-    --text: #f2f2f2;
-    --muted: #888;
-}
-
-/* Fondo */
 [data-testid="stAppViewContainer"] {
-    background-color: var(--bg);
+    background-color: #050505;
 }
 
-/* Tipografía */
 html, body {
-    color: var(--text);
-    font-family: 'Inter', sans-serif;
-}
-
-h1, h2 {
-    font-family: 'Syne', sans-serif;
+    color: #fff;
+    font-family: -apple-system, sans-serif;
 }
 
 /* Inputs */
 input {
-    background: #1a1a1f !important;
+    background: #111 !important;
     color: white !important;
     border-radius: 14px !important;
-    border: 1px solid var(--border) !important;
-    padding: 12px !important;
 }
 
 /* Select */
 div[data-baseweb="select"] > div {
-    background: #1a1a1f !important;
+    background: #111 !important;
     border-radius: 14px !important;
-    border: 1px solid var(--border) !important;
 }
 
 div[data-baseweb="select"] span {
     color: white !important;
 }
 
-/* Dropdown */
-ul[role="listbox"] {
-    background: #111 !important;
-}
-
-li[role="option"] {
-    color: white !important;
-}
-
 /* Cards */
 .card {
-    background: var(--card);
+    background: #111;
     padding: 18px;
     border-radius: 16px;
-    border: 1px solid var(--border);
     margin-bottom: 12px;
+    border: 1px solid #222;
     transition: 0.2s;
 }
 
 .card:hover {
     transform: translateY(-4px);
-    box-shadow: 0px 10px 30px rgba(0,0,0,0.4);
 }
 
 /* Fade */
@@ -84,22 +55,14 @@ li[role="option"] {
 }
 
 @keyframes fade {
-    from {opacity: 0; transform: translateY(10px);}
-    to {opacity: 1; transform: translateY(0);}
-}
-
-/* Métricas */
-[data-testid="stMetric"] {
-    background: var(--card);
-    border-radius: 16px;
-    border: 1px solid var(--border);
-    padding: 15px;
+    from {opacity:0; transform:translateY(10px);}
+    to {opacity:1; transform:translateY(0);}
 }
 </style>
 """, unsafe_allow_html=True)
 
 # -------------------------
-# 📂 CARGAR DATOS
+# 📂 CARGAR DATOS (ROBUSTO)
 # -------------------------
 def cargar_datos():
     try:
@@ -111,40 +74,50 @@ def cargar_datos():
             on_bad_lines="skip"
         )
 
-        # limpiar nombres de columnas
         df.columns = df.columns.str.strip()
 
-        # asegurar columnas
-        columnas_necesarias = ["Fecha", "Cliente", "Servicio", "Precio", "Profesional"]
-        for col in columnas_necesarias:
+        # Validar columnas
+        columnas = ["Fecha", "Cliente", "Servicio", "Precio", "Profesional"]
+        for col in columnas:
             if col not in df.columns:
-                st.error(f"Falta la columna: {col}")
+                st.error(f"Falta columna: {col}")
                 return pd.DataFrame()
 
-        # limpiar datos
+        # Limpiar
         df["Cliente"] = df["Cliente"].astype(str).str.strip()
         df["Servicio"] = df["Servicio"].astype(str).str.strip()
         df["Profesional"] = df["Profesional"].astype(str).str.strip()
 
-        # precios
         df["Precio"] = pd.to_numeric(df["Precio"], errors="coerce")
 
-        # fechas (MUY IMPORTANTE)
         df["Fecha"] = pd.to_datetime(
             df["Fecha"],
             dayfirst=True,
             errors="coerce"
         )
 
-        # eliminar filas rotas
-        df = df.dropna(subset=["Cliente", "Fecha", "Precio"])
+        df = df.dropna(subset=["Cliente", "Fecha"])
 
         return df
 
     except Exception as e:
-        st.error(f"Error leyendo archivo: {e}")
+        st.error(f"Error leyendo CSV: {e}")
         return pd.DataFrame()
 
+# -------------------------
+# 🔥 CARGAR DF (CLAVE)
+# -------------------------
+df = cargar_datos()
+
+if df.empty:
+    st.warning("⚠ No hay datos en el archivo")
+    st.stop()
+
+# -------------------------
+# 🔄 REFRESH
+# -------------------------
+if st.button("🔄 Actualizar"):
+    st.rerun()
 
 # -------------------------
 # 🔍 BUSCADOR
@@ -158,20 +131,18 @@ clientes = sorted(df["Cliente"].unique())
 if busqueda:
     clientes = [c for c in clientes if busqueda.lower() in c.lower()]
 
-cliente = st.selectbox("Seleccionar clienta", clientes)
-
+cliente = st.selectbox("Seleccionar clienta", [""] + clientes)
 
 # -------------------------
-# 👤 PERFIL CLIENTA
+# 👤 PERFIL
 # -------------------------
 if cliente:
 
-    st.toast("Cliente cargado ✨")
+    st.toast("Cliente cargado 🔥")
 
     df_cliente = df[df["Cliente"] == cliente]
 
     st.markdown("---")
-
     st.header(cliente)
 
     total = df_cliente["Precio"].sum()
@@ -196,9 +167,7 @@ if cliente:
 
     df_cliente = df_cliente.sort_values("Fecha", ascending=False)
 
-    fechas = df_cliente["Fecha"].dt.date.unique()
-
-    for fecha in fechas:
+    for fecha in df_cliente["Fecha"].dt.date.unique():
 
         st.markdown(f"### 📅 {fecha}")
 
