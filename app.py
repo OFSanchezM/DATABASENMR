@@ -5,9 +5,6 @@ from PIL import Image
 
 st.set_page_config(page_title="NOMASRIMEL", layout="centered")
 
-# ─────────────────────────────────────────
-# 🎨 UI PREMIUM
-# ─────────────────────────────────────────
 st.markdown("""
 <style>
 
@@ -18,7 +15,6 @@ st.markdown("""
     --border:   rgba(255,255,255,0.06);
     --border-h: rgba(255,255,255,0.14);
     --accent:   #7c6dfa;
-    --accent2:  #e879f9;
     --text:     #f0f0f6;
     --muted:    #6b6b80;
     --radius:   18px;
@@ -40,10 +36,7 @@ html, body, [class*="css"] {
     -webkit-font-smoothing: antialiased;
 }
 
-h1, h2, h3 {
-    letter-spacing: -0.02em;
-    color: var(--text);
-}
+h1, h2, h3 { letter-spacing: -0.02em; color: var(--text); }
 
 h1 {
     font-size: 36px;
@@ -63,7 +56,7 @@ input, textarea {
     border-radius: var(--radius) !important;
     padding: 14px 16px !important;
     font-size: 15px !important;
-    transition: border-color 0.2s ease, box-shadow 0.2s ease !important;
+    transition: border-color 0.2s ease !important;
 }
 
 input:focus {
@@ -101,7 +94,6 @@ li[role="option"]:hover { background: rgba(124,109,250,0.15) !important; }
     border: 1px solid var(--border) !important;
     border-radius: var(--radius) !important;
     padding: 20px !important;
-    transition: border-color 0.2s ease !important;
 }
 
 [data-testid="stMetric"]:hover { border-color: rgba(124,109,250,0.3) !important; }
@@ -126,6 +118,7 @@ hr {
     margin: 28px 0 !important;
 }
 
+/* ── Card — sin styles inline complejos ── */
 .card {
     background: var(--surface);
     padding: 22px;
@@ -137,23 +130,30 @@ hr {
     overflow: hidden;
 }
 
-.card::before {
-    content: '';
-    position: absolute;
-    top: 0; left: 0; right: 0;
-    height: 1px;
-    background: linear-gradient(90deg, transparent, rgba(124,109,250,0.5), transparent);
-    opacity: 0;
-    transition: opacity 0.3s ease;
-}
-
 .card:hover {
     transform: translateY(-4px);
     box-shadow: 0 16px 40px rgba(0,0,0,0.5), 0 0 0 1px rgba(124,109,250,0.2);
     border-color: var(--border-h);
 }
 
-.card:hover::before { opacity: 1; }
+.card-servicio {
+    font-weight: 700;
+    font-size: 17px;
+    color: #f0f0f6;
+}
+
+.card-prof {
+    color: #6b6b80;
+    font-size: 13px;
+    margin-top: 5px;
+}
+
+.card-precio {
+    font-weight: 800;
+    font-size: 22px;
+    color: var(--accent);
+    margin-top: 14px;
+}
 
 .fecha-label {
     font-size: 11px;
@@ -183,9 +183,25 @@ hr {
     padding: 2px 10px;
     font-size: 11px;
     font-weight: 700;
-    letter-spacing: 0.04em;
     margin-left: 8px;
-    vertical-align: middle;
+}
+
+.badge-reagendo {
+    display: inline-block;
+    background: rgba(124,109,250,0.1);
+    color: var(--accent);
+    border: 1px solid rgba(124,109,250,0.25);
+    border-radius: 20px;
+    padding: 2px 10px;
+    font-size: 11px;
+    font-weight: 700;
+    margin-top: 8px;
+}
+
+.card-proximo {
+    color: #6b6b80;
+    font-size: 12px;
+    margin-top: 8px;
 }
 
 label, .stTextInput label, p {
@@ -202,9 +218,7 @@ label, .stTextInput label, p {
 """, unsafe_allow_html=True)
 
 
-# ─────────────────────────────────────────
-# 💎 HEADER
-# ─────────────────────────────────────────
+# ─── HEADER ───
 col_logo, col_titulo = st.columns([1, 6])
 
 try:
@@ -221,21 +235,16 @@ with col_titulo:
 st.markdown("---")
 
 
-# ─────────────────────────────────────────
-# 📂 LEER CSV
-# CSV: Factura, Fecha, Cliente, Servicio, Precio, Profesional, Comisión, Reagendo, ProximoTurno
-#       [0]     [1]    [2]      [3]       [4]     [5]          [6]       [7]       [8]
-# ─────────────────────────────────────────
+# ─── LEER CSV ───
+# Columnas: Factura[0], Fecha[1], Cliente[2], Servicio[3], Precio[4], Profesional[5], Comisión[6], Reagendo[7], ProximoTurno[8]
 archivo = "facturas_salon.csv"
 datos = []
 
 with open(archivo, encoding="utf-8") as f:
     for linea in f:
         partes = linea.strip().split(",")
-
         if len(partes) < 6:
             continue
-
         try:
             fecha       = partes[1].strip()
             cliente_v   = partes[2].strip()
@@ -247,24 +256,18 @@ with open(archivo, encoding="utf-8") as f:
         except:
             continue
 
-        # Saltar encabezado y clientes inválidos
         if fecha == "Fecha" or cliente_v.lower() in ("", "nan", "no name"):
             continue
 
-        # Validar formato de fecha
         try:
             datetime.strptime(fecha, "%d/%m/%Y")
         except:
             continue
 
         datos.append({
-            "Fecha":       fecha,
-            "Cliente":     cliente_v,
-            "Servicio":    servicio,
-            "Precio":      precio,
-            "Profesional": profesional,
-            "Reagendo":    reagendo,
-            "Proximo":     proximo,
+            "Fecha": fecha, "Cliente": cliente_v, "Servicio": servicio,
+            "Precio": precio, "Profesional": profesional,
+            "Reagendo": reagendo, "Proximo": proximo,
         })
 
 if not datos:
@@ -272,9 +275,7 @@ if not datos:
     st.stop()
 
 
-# ─────────────────────────────────────────
-# 🔍 BUSCADOR
-# ─────────────────────────────────────────
+# ─── BUSCADOR ───
 buscar_nombre = st.text_input("🔍  Buscar clienta por nombre")
 
 filtrados = datos
@@ -290,9 +291,7 @@ if clientes_lista:
         cliente = None
 
 
-# ─────────────────────────────────────────
-# 👩 PERFIL CLIENTA
-# ─────────────────────────────────────────
+# ─── PERFIL ───
 if cliente:
     historial = [d for d in datos if d["Cliente"] == cliente]
 
@@ -330,23 +329,19 @@ if cliente:
         for item in agrupado[fecha]:
             reagendo_html = ""
             if item["Reagendo"].lower() in ("sí", "si", "yes", "true", "1"):
-                reagendo_html = '<span style="display:inline-block;background:rgba(124,109,250,0.15);color:#7c6dfa;border:1px solid rgba(124,109,250,0.3);border-radius:20px;padding:2px 10px;font-size:11px;font-weight:700;margin-top:6px;">🔁 Reagendó</span>'
+                reagendo_html = '<div><span class="badge-reagendo">🔁 Reagendó</span></div>'
 
             proximo_html = ""
             if item["Proximo"] and item["Proximo"].lower() not in ("", "nan", "no", "none"):
-                proximo_html = f'<div style="color:#6b6b80;font-size:12px;margin-top:8px;">📌 Próximo turno: {item["Proximo"]}</div>'
+                proximo_html = f'<div class="card-proximo">📌 Próximo turno: {item["Proximo"]}</div>'
 
+            # ✅ Precio como clase CSS — sin styles inline complejos
             st.markdown(f"""
-            <div class="card">
-                <div style="font-weight:700;font-size:17px;color:#f0f0f6;">{item['Servicio']}</div>
-                <div style="color:#6b6b80;font-size:13px;margin-top:5px;">👤 {item['Profesional']}</div>
-                {reagendo_html}
-                {proximo_html}
-                <div style="font-weight:800;font-size:22px;margin-top:14px;
-                            background:linear-gradient(135deg,#fff 20%,#7c6dfa);
-                            -webkit-background-clip:text;-webkit-text-fill-color:transparent;
-                            background-clip:text;">
-                    ${item['Precio']:,.0f}
-                </div>
-            </div>
-            """, unsafe_allow_html=True)
+<div class="card">
+    <div class="card-servicio">{item['Servicio']}</div>
+    <div class="card-prof">👤 {item['Profesional']}</div>
+    {reagendo_html}
+    {proximo_html}
+    <div class="card-precio">${item['Precio']:,.0f}</div>
+</div>
+""", unsafe_allow_html=True)
