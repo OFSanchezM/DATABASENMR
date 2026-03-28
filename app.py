@@ -11,69 +11,95 @@ st.set_page_config(page_title="NOMASRIMEL", layout="wide")
 st.markdown("""
 <style>
 
-/* 🔥 TEXTO INPUT (lo que escribís) */
-input, textarea {
-    color: #111 !important;
+/* ===== BASE ===== */
+[data-testid="stAppViewContainer"] {
+    background-color: #0E0E0E;
 }
 
-/* 🔥 PLACEHOLDER (texto gris claro) */
-input::placeholder {
-    color: #999 !important;
+/* CONTENEDOR */
+section.main > div {
+    background-color: #FFFFFF;
+    padding: 25px;
+    border-radius: 24px;
+    max-width: 900px;
+    margin: auto;
 }
 
-/* 🔥 LABELS (Nombre, Profesional, etc) */
+/* ===== TEXTOS ===== */
+h1, h2, h3 {
+    color: #111;
+}
+
 label {
     color: #DDD !important;
 }
 
-/* 🔥 SELECTBOX TEXTO (soluciona lo blanco) */
+/* ===== INPUT ===== */
+input {
+    background-color: #FFFFFF !important;
+    color: #111 !important;
+    border-radius: 14px !important;
+    border: 1px solid #E0E0E0 !important;
+}
+
+/* placeholder */
+input::placeholder {
+    color: #999 !important;
+}
+
+/* ===== SELECTBOX ===== */
+div[data-baseweb="select"] > div {
+    background-color: #FFFFFF !important;
+    border-radius: 14px !important;
+    border: 1px solid #E0E0E0 !important;
+}
+
+/* TEXTO SELECT (clave) */
 div[data-baseweb="select"] span {
     color: #111 !important;
 }
 
-/* 🔥 SELECTBOX DROPDOWN */
-ul {
+/* dropdown */
+div[role="listbox"] {
+    background-color: #FFFFFF !important;
+}
+
+/* opciones */
+div[role="option"] {
     color: #111 !important;
 }
 
-/* 🔥 OPCIONES DEL SELECT */
-li {
-    color: #111 !important;
+/* ===== SLIDER (FIX BUG QUE TENÉS) ===== */
+[data-testid="stSlider"] {
+    background-color: transparent !important;
 }
 
-/* 🔥 SLIDER TEXTO */
 [data-testid="stSlider"] * {
     color: #111 !important;
 }
 
-/* 🔥 FONDO SLIDER */
-[data-testid="stSlider"] {
-    background-color: #FAFAFA !important;
-    border-radius: 14px;
+/* ===== CARDS ===== */
+.card {
+    background: #FFFFFF;
+    padding: 18px;
+    border-radius: 16px;
+    border: 1px solid #EAEAEA;
+}
+
+/* ===== METRIC ===== */
+[data-testid="stMetric"] {
+    background-color: #FAFAFA;
+    border-radius: 16px;
     padding: 10px;
 }
 
-/* 🔥 TEXTO GENERAL SOBRE FONDO NEGRO */
-p, span, div {
-    color: #111;
-}
-
-/* 🔥 PERO LABELS EXTERNOS EN CLARO */
-.css-1cpxqw2, .css-1y4p8pa {
-    color: #DDD !important;
+/* ===== ALERTAS ===== */
+[data-testid="stAlert"] {
+    border-radius: 14px;
 }
 
 </style>
 """, unsafe_allow_html=True)
-# =========================
-# 💎 LOGO
-# =========================
-try:
-    logo = Image.open("logo.png")
-    st.image(logo, width=180)
-except:
-    pass
-
 # =========================
 # 📂 LEER CSV
 # =========================
