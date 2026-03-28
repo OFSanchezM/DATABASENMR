@@ -172,20 +172,21 @@ if cliente_input:
 
     coincidencias = [c for c in clientes if cliente_input.lower() in c.lower()]
 
-    # 🔥 LIMITAMOS RESULTADOS (CLAVE)
-    coincidencias = coincidencias[:5]
+    if coincidencias:
 
-    for c in coincidencias:
+        with st.expander(f"Resultados ({len(coincidencias)})", expanded=False):
 
-        historial_c = [d for d in datos if d["Cliente"] == c]
+            for c in coincidencias:
 
-        ultima_fecha = max(
-            historial_c,
-            key=lambda x: datetime.strptime(x["Fecha"], "%d/%m/%Y")
-        )["Fecha"]
+                historial_c = [d for d in datos if d["Cliente"] == c]
 
-        if st.button(f"{c} • {ultima_fecha}"):
-            cliente_seleccionada = c
+                ultima_fecha = max(
+                    historial_c,
+                    key=lambda x: datetime.strptime(x["Fecha"], "%d/%m/%Y")
+                )["Fecha"]
+
+                if st.button(f"{c} • {ultima_fecha}", key=c):
+                    cliente_seleccionada = c
 # =========================
 # PERFIL CLIENTA
 # =========================
