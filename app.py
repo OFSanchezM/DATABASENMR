@@ -10,93 +10,81 @@ st.set_page_config(page_title="NOMASRIMEL", layout="wide")
 # =========================
 st.markdown("""
 <style>
+    /* 1. Reset de Color Base (Evita el conflicto de texto negro sobre negro) */
+    :root {
+        --text-main: #1A1A1A;
+        --text-secondary: #666666;
+        --bg-input: #FFFFFF;
+        --border-color: #E0E0E0;
+    }
 
-/* ===== BASE ===== */
-[data-testid="stAppViewContainer"] {
-    background-color: #0E0E0E;
-}
+    /* 2. Tipografía y Color General */
+    html, body, [class*="css"], .stMarkdown, p, span {
+        color: var(--text-main) !important;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
 
-/* CONTENEDOR */
-section.main > div {
-    background-color: #FFFFFF;
-    padding: 25px;
-    border-radius: 24px;
-    max-width: 900px;
-    margin: auto;
-}
+    /* 3. Labels (Nombres de los campos) - Ahora legibles */
+    data-testid="stWidgetLabel", label, .st-at {
+        color: var(--text-main) !important;
+        font-weight: 500 !important;
+        margin-bottom: 8px !important;
+    }
 
-/* ===== TEXTOS ===== */
-h1, h2, h3 {
-    color: #111;
-}
+    /* 4. Inputs y Textareas (Escritura limpia) */
+    input, textarea {
+        color: var(--text-main) !important;
+        background-color: var(--bg-input) !important;
+        border: 1px solid var(--border-color) !important;
+        border-radius: 12px !important;
+    }
 
-label {
-    color: #DDD !important;
-}
+    input::placeholder {
+        color: #A0A0A0 !important;
+    }
 
-/* ===== INPUT ===== */
-input {
-    background-color: #FFFFFF !important;
-    color: #111 !important;
-    border-radius: 14px !important;
-    border: 1px solid #E0E0E0 !important;
-}
+    /* 5. Selectbox (Dropdowns) - Fix de visibilidad */
+    div[data-baseweb="select"] {
+        background-color: var(--bg-input) !important;
+        border-radius: 12px !important;
+    }
 
-/* placeholder */
-input::placeholder {
-    color: #999 !important;
-}
+    div[data-baseweb="select"] * {
+        color: var(--text-main) !important;
+    }
 
-/* ===== SELECTBOX ===== */
-div[data-baseweb="select"] > div {
-    background-color: #FFFFFF !important;
-    border-radius: 14px !important;
-    border: 1px solid #E0E0E0 !important;
-}
+    /* Estilo para las opciones cuando se abre el menú */
+    ul[role="listbox"] {
+        background-color: #FFFFFF !important;
+    }
+    
+    li[role="option"] {
+        color: var(--text-main) !important;
+    }
 
-/* TEXTO SELECT (clave) */
-div[data-baseweb="select"] span {
-    color: #111 !important;
-}
+    /* 6. Slider (Control de deslizamiento) */
+    [data-testid="stSlider"] {
+        background-color: #F8F9FA !important;
+        padding: 15px 25px !important;
+        border-radius: 16px !important;
+        border: 1px solid #F0F0F0;
+    }
 
-/* dropdown */
-div[role="listbox"] {
-    background-color: #FFFFFF !important;
-}
+    [data-testid="stSlider"] label {
+        color: var(--text-main) !important;
+    }
 
-/* opciones */
-div[role="option"] {
-    color: #111 !important;
-}
+    /* 7. Arreglo para elementos de Streamlit que a veces fuerzan blanco */
+    .stMarkdown p {
+        color: var(--text-main) !important;
+    }
 
-/* ===== SLIDER (FIX BUG QUE TENÉS) ===== */
-[data-testid="stSlider"] {
-    background-color: transparent !important;
-}
-
-[data-testid="stSlider"] * {
-    color: #111 !important;
-}
-
-/* ===== CARDS ===== */
-.card {
-    background: #FFFFFF;
-    padding: 18px;
-    border-radius: 16px;
-    border: 1px solid #EAEAEA;
-}
-
-/* ===== METRIC ===== */
-[data-testid="stMetric"] {
-    background-color: #FAFAFA;
-    border-radius: 16px;
-    padding: 10px;
-}
-
-/* ===== ALERTAS ===== */
-[data-testid="stAlert"] {
-    border-radius: 14px;
-}
+    /* 8. Logo centrado y estético */
+    [data-testid="stImage"] {
+        display: flex;
+        justify-content: center;
+        margin-bottom: 2rem;
+    }
 
 </style>
 """, unsafe_allow_html=True)
